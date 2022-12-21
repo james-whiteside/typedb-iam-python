@@ -81,3 +81,9 @@ def get_config_params(filepath, section):
             params[option] = value
 
     return params
+
+
+def get_banned_words(filepath):
+    with open(filepath, 'r') as file:
+        words = file.read().split('\n')
+        return words
