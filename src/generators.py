@@ -1,7 +1,7 @@
+import json
 import random
 import datetime
 import calendar
-import sys
 import uuid
 import names as name_generator
 import src.utilities as utilities
@@ -15,13 +15,17 @@ def generate_letter():
     return random.choice('abcdefghijklmnopqrstuvwxyz')
 
 
-def generate_letter_string(length, prevent_banned_words=True):
-    string = ''.join(generate_letter() for i in range(length))
+def generate_letters(length, prevent_banned_strings=True):
+    letters = ''.join(generate_letter() for i in range(length))
 
-    if prevent_banned_words and any(word in string for word in utilities.get_banned_words('assets/banned_words.txt')):
-        return generate_letter_string(length, prevent_banned_words=prevent_banned_words)
+    if prevent_banned_strings:
+        with open('generator_data/banned_strings.tsv', 'r') as file:
+            banned_strings = file.read().split('\n')
 
-    return string
+        if any(banned_string in letters for banned_string in banned_strings):
+            return generate_letters(length)
+
+    return letters
 
 
 def generate_date(past_years=10, year=None, month=None, day=None):
@@ -40,105 +44,80 @@ def generate_date(past_years=10, year=None, month=None, day=None):
         else:
             date = date.replace(day=day)
 
-    return date
+    return str(date)
+
+
+def generate_name(sep=' ', lower=False):
+    name = sep.join(name_generator.get_full_name().split(' '))
+
+    if lower:
+        name = name.lower()
+
+    return name
 
 
 def generate_resolution():
     return str(random.randint(1, 4) * 360) + 'x' + str(random.randint(1, 4) * 360)
 
 
-def generate_name():
-    return name_generator.get_full_name()
+def construct_string(constructor):
+    string = ''
+
+    for part in constructor.split('&'):
+        if part[0] == '<' and part[-1] == '>':
+            args = part[1:-1].split('|')
+            command = args.pop(0)
+
+            if command == 'uuid':
+                generator = generate_uuid
+            elif command == 'letter':
+                generator = generate_letter
+            elif command == 'letters':
+                generator = generate_letters
+            elif command == 'date':
+                generator = generate_date
+            elif command == 'name':
+                generator = generate_name
+            elif command == 'resolution':
+                generator = generate_resolution
+            else:
+                string += part
+                continue
+
+            kwargs = {arg.split(':')[0]: utilities.cast_string(arg.split(':')[1]) for arg in args}
+            string += generator(**kwargs)
+        else:
+            string += part
+
+    return string
+
+
+def load_user_groups(group_type=None, get_abstract_groups=True):
+    with open('generator_data/user_groups.json', 'r') as file:
+        user_groups = json.load(file)
+
+    if group_type is not None:
+        user_groups = list(group for group in user_groups if group['type'] == group_type)
+
+    if not get_abstract_groups:
+        user_groups = list(group for group in user_groups if not group['is_abstract'])
+
+    return user_groups
 
 
 def generate_business_units():
-    units = list()
-    seed_1 = random.random()
-    seed_2 = random.random()
-
-    if 0 <= seed_1 < 0.6:
-        # engineering
-
-        if 0 <= seed_2 < 0.4:
-            units.append('core')
-        elif 0.4 <= seed_2 < 0.65:
-            units.append('client')
-        elif 0.65 <= seed_2 < 0.9:
-            units.append('studio')
-        else:
-            units.append('engineering')
-
-    elif 0.6 <= seed_1 < 0.75:
-        # product
-
-        if 0 <= seed_2 < 0.45:
-            units.append('research')
-        elif 0.45 <= seed_2 < 0.9:
-            units.append('documentation')
-        else:
-            units.append('product')
-
-    elif 0.75 <= seed_1 < 0.85:
-        units.append('operations')
-
-    elif 0.85 <= seed_1 < 0.95:
-        units.append('people')
-
-    else:
-        units.append('executive')
-
-    return units
+    units = load_user_groups('business_unit', get_abstract_groups=False)
+    return list(unit['name'] for unit in [random.choice(units)])
 
 
 def generate_user_roles():
-    roles = list()
-    seed_1 = random.random()
-    seed_2 = random.random()
-    seed_3 = random.random()
-    seed_4 = random.random()
-    seed_5 = random.random()
-
-    if 0 <= seed_1 < 0.05:
-        roles.append('docs_admin')
-    elif 0.05 <= seed_1 < 0.25:
-        roles.append('docs_editor')
-
-    if 0 <= seed_2 < 0.05:
-        roles.append('web_admin')
-    elif 0.05 <= seed_2 < 0.25:
-        roles.append('web_editor')
-
-    if 0 <= seed_3 < 0.05:
-        roles.append('code_admin')
-    elif 0.05 <= seed_3 < 0.25:
-        roles.append('code_editor')
-
-    if 0 <= seed_4 < 0.05:
-        roles.append('sys_admin')
-
-    if 0 <= seed_5 < 0.1:
-        roles.append('manager')
-
-    return roles
+    roles = load_user_groups('user_role', get_abstract_groups=False)
+    return list(role['name'] for role in roles if random.random() < 0.15)
 
 
-def generate_user_accounts(full_name):
-    accounts = list()
-    accounts.append('.'.join(name.lower() for name in full_name.split(' ')) + '@vaticle.com')
-    seed_1 = random.random()
-    seed_2 = random.random()
-    seed_3 = random.random()
-
-    if 0 <= seed_1 < 0.15:
-        accounts.append('webinars@vaticle.com')
-
-    if 0 <= seed_2 < 0.15:
-        accounts.append('sales@vaticle.com')
-
-    if 0 <= seed_3 < 0.15:
-        accounts.append('careers@vaticle.com')
-
-    return accounts
+def generate_user_accounts():
+    accounts = load_user_groups('user_account', get_abstract_groups=False)
+    return list(account['name'] for account in accounts if random.random() < 0.15)
 
 
 def generate_user(full_name=None):
@@ -148,9 +127,10 @@ def generate_user(full_name=None):
     user = {
         'first_name': full_name.split(' ')[0],
         'last_name': full_name.split(' ')[1],
+        'email': '.'.join(name.lower() for name in full_name.split(' ')) + '@vaticle.com',
         'business_unit': generate_business_units(),
         'user_role': generate_user_roles(),
-        'user_account': generate_user_accounts(full_name),
+        'user_account': generate_user_accounts(),
         'uuid': generate_uuid()
     }
 
@@ -171,242 +151,63 @@ def generate_users(count):
     return users
 
 
-def get_user_groups(users):
-    user_group_names = set()
+def get_user_groups():
+    user_groups = load_user_groups()
 
-    for user in users:
-        for unit in user['business_unit']:
-            user_group_names.add(unit)
-
-        for role in user['user_role']:
-            user_group_names.add(role)
-
-        for account in user['user_account']:
-            user_group_names.add(account)
-
-    if any(name in user_group_names for name in ('core', 'client', 'studio')):
-        user_group_names.add('engineering')
-
-    if any(name in user_group_names for name in ('research', 'documentation')):
-        user_group_names.add('product')
-
-    user_groups = list()
-
-    for name in user_group_names:
-        user_group = dict()
-        user_group['name'] = name
-        user_group['member'] = list()
-
-        for user in users:
-            if name in user['business_unit'] + user['user_role'] + user['user_account']:
-                user_group['member'].append(user['uuid'])
-
-        user_group['uuid'] = generate_uuid()
-        user_groups.append(user_group)
+    for group in user_groups:
+        group['uuid'] = generate_uuid()
 
     for parent_group in user_groups:
-        if parent_group['name'] == 'engineering':
-            for child_group in user_groups:
-                if child_group['name'] in ('core', 'client', 'studio'):
-                    parent_group['member'].append(child_group['uuid'])
+        member = list()
 
-        elif parent_group['name'] == 'product':
-            for child_group in user_groups:
-                if child_group['name'] in ('research', 'documentation'):
-                    parent_group['member'].append(child_group['uuid'])
+        for child_group in user_groups:
+            if child_group['name'] in parent_group['member']:
+                member.append(child_group['uuid'])
+
+        parent_group['member'] = member
 
     return user_groups
 
 
-def generate_source_project():
-    return random.choice(['core', 'client', 'studio', 'web'])
+def generate_subjects(count):
+    users = generate_users(count)
+    user_groups = get_user_groups()
+
+    for group in user_groups:
+        for user in users:
+            if group['name'] in user['business_unit'] + user['user_role'] + user['user_account']:
+                group['member'].append(user['uuid'])
+
+    return users, user_groups
 
 
-def generate_source_subdir(project=None):
-    if project is None:
-        project = generate_source_project()
+def load_resource_collections(collection_type=None, get_abstract_collections=True):
+    with open('generator_data/resource_collections.json', 'r') as file:
+        resource_collections = json.load(file)
 
-    if project == 'core':
+    if collection_type is not None:
+        resource_collections = list(collection for collection in resource_collections if collection['type'] == collection_type)
 
-        subdir = random.choice([
-            '',
-            '/common',
-            '/concept',
-            '/concurrent',
-            '/config',
-            '/database',
-            '/dependencies',
-            '/docs',
-            '/encoding',
-            '/graph',
-            '/logic',
-            '/migrator',
-            '/pattern',
-            '/query',
-            '/reasoner',
-            '/server',
-            '/test',
-            '/traversal'
-        ])
+    if not get_abstract_collections:
+        resource_collections = list(collection for collection in resource_collections if not collection['is_abstract'])
 
-    elif project == 'client':
-
-        subdir = random.choice([
-            '',
-            '/api',
-            '/common',
-            '/concept',
-            '/connection',
-            '/dependencies',
-            '/docs',
-            '/logic',
-            '/query',
-            '/stream',
-            '/test'
-        ])
-
-    elif project == 'studio':
-
-        subdir = random.choice([
-            '',
-            '/binary',
-            '/config',
-            '/dependencies',
-            '/docs',
-            '/framework',
-            '/module',
-            '/resources',
-            '/service',
-            '/test'
-        ])
-
-    elif project == 'web':
-
-        subdir = random.choice([
-            '',
-            '/api',
-            '/assets',
-            '/common',
-            '/config',
-            '/pages',
-            '/state'
-        ])
-
-    else:
-        subdir = ''
-
-    return project + '/source' + subdir
+    return resource_collections
 
 
-def generate_resource_type():
-    resource_type = random.choice([
-        'engineering_code',
-        'research_code',
-        'test_data',
-        'research_report',
-        'documentation_published',
-        'documentation_draft',
-        'documentation_example',
-        'finances_budget',
-        'finances_report',
-        'finances_invoice',
-        'sales_invoice',
-        'sales_order',
-        'marketing_copy',
-        'marketing_asset',
-        'recruitment_form_output',
-        'recruitment_cv',
-        'contact_details'
-    ])
-
-    return resource_type
+def generate_directory():
+    collections = load_resource_collections('directory', get_abstract_collections=False)
+    return random.choice(collections)
 
 
-def generate_resource(resource_type=None):
-    if resource_type is None:
-        resource_type = generate_resource_type()
+def generate_resource():
+    directory = generate_directory()
 
-    resource = dict()
+    resource = {
+        'name': construct_string(directory['resource_format']),
+        'directory': [directory['name']],
+        'uuid': generate_uuid()
+    }
 
-    if resource_type == 'engineering_code':
-        resource['path'] = 'engineering/' + generate_source_subdir()
-        resource['name'] = generate_letter_string(5) + '.java'
-
-        if resource['path'].split('/')[1] == 'web':
-            resource['name'] = generate_letter_string(5) + '.ts'
-
-        try:
-            if resource['path'].split('/')[3] == 'assets':
-                resource['name'] = generate_letter_string(3) + '_' + generate_resolution() + '.svg'
-        except IndexError:
-            pass
-
-    elif resource_type == 'research_code':
-        resource['path'] = 'product/research/code'
-        resource['name'] = generate_letter_string(5) + '.py'
-
-    elif resource_type == 'test_data':
-        resource['path'] = 'product/research/test_data'
-        resource['name'] = generate_letter_string(5) + '_' + generate_letter_string(5) + '.tsv'
-
-    elif resource_type == 'research_report':
-
-        resource['path'] = 'product/research/reports'
-        resource['name'] = generate_letter_string(7) + str(generate_date()) + '.pdf'
-
-    elif resource_type == 'documentation_published':
-        resource['path'] = 'product/documentation/published'
-        resource['name'] = generate_letter_string(7) + '.md'
-
-    elif resource_type == 'documentation_draft':
-        resource['path'] = 'product/documentation/drafts'
-        resource['name'] = generate_letter_string(7) + '.md'
-
-    elif resource_type == 'documentation_example':
-        resource['path'] = 'product/documentation/examples'
-        resource['name'] = generate_letter_string(5) + '.tql'
-
-    elif resource_type == 'finances_budget':
-        resource['path'] = 'operations/finances/budgets'
-        resource['name'] = 'budget_' + str(generate_date(day=1)) + '.xlsx'
-
-    elif resource_type == 'finances_report':
-        resource['path'] = 'operations/finances/reports'
-        resource['name'] = 'report_' + str(generate_date(day=-1)) + '.xlsx'
-
-    elif resource_type == 'finances_invoice':
-        resource['path'] = 'operations/finances/invoices'
-        resource['name'] = 'invoice_' + str(generate_date()) + '.pdf'
-
-    elif resource_type == 'sales_invoice':
-        resource['path'] = 'operations/sales/invoices'
-        resource['name'] = 'invoice_' + str(generate_date()) + '.pdf'
-
-    elif resource_type == 'sales_order':
-        resource['path'] = 'operations/sales/orders'
-        resource['name'] = 'order_' + str(generate_date()) + '.xlsx'
-
-    elif resource_type == 'marketing_copy':
-        resource['path'] = 'operations/marketing/copy'
-        resource['name'] = generate_letter_string(7) + '.docx'
-
-    elif resource_type == 'marketing_asset':
-        resource['path'] = 'operations/marketing/assets'
-        resource['name'] = generate_letter_string(3) + '_' + generate_resolution() + '.png'
-
-    elif resource_type == 'recruitment_form_output':
-        resource['path'] = 'people/recruitment/form_outputs'
-        resource['name'] = '_'.join(generate_name().split(' ')) + '_' + str(generate_date(past_years=1)) + '.xlsx'
-
-    elif resource_type == 'recruitment_cv':
-        resource['path'] = 'people/recruitment/cvs'
-        resource['name'] = '_'.join(generate_name().split(' ')) + '.pdf'
-
-    elif resource_type == 'contact_details':
-        resource['path'] = 'people/contact_details'
-        resource['name'] = '_'.join(generate_name().split(' ')) + '.xlsx'
-
-    resource['uuid'] = generate_uuid()
     return resource
 
 
@@ -420,39 +221,34 @@ def generate_resources(count):
     return resources
 
 
-def get_resource_collections(resources):
-    resource_collection_names = set()
+def get_resource_collections():
+    resource_collections = load_resource_collections()
 
-    for resource in resources:
-        directories = resource['path'].split('/')
-
-        for i in range(len(directories)):
-            directory = '/'.join(directories[0:i+1])
-            resource_collection_names.add(directory)
-
-    resource_collections = list()
-
-    for name in resource_collection_names:
-        resource_collection = dict()
-        resource_collection['name'] = name
-        resource_collection['member'] = list()
-
-        for resource in resources:
-            if resource['path'] == name:
-                resource_collection['member'].append(resource['uuid'])
-
-        resource_collection['uuid'] = generate_uuid()
-        resource_collections.append(resource_collection)
+    for collection in resource_collections:
+        collection['uuid'] = generate_uuid()
 
     for parent_collection in resource_collections:
-        for child_collection in resource_collections:
-            if parent_collection['uuid'] == child_collection['uuid']:
-                continue
+        member = list()
 
-            if '/'.join(child_collection['name'].split('/')[:-1]) == parent_collection['name']:
-                parent_collection['member'].append(child_collection['uuid'])
+        for child_collection in resource_collections:
+            if child_collection['name'] in parent_collection['member']:
+                member.append(child_collection['uuid'])
+
+        parent_collection['member'] = member
 
     return resource_collections
+
+
+def generate_objects(count):
+    resources = generate_resources(count)
+    resource_collections = get_resource_collections()
+
+    for collection in resource_collections:
+        for resource in resources:
+            if collection['name'] in resource['directory']:
+                collection['member'].append(resource['uuid'])
+
+    return resources, resource_collections
 
 
 def get_operations(object_type=None):

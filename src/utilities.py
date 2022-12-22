@@ -1,3 +1,4 @@
+import decimal
 import math
 import configparser
 import json
@@ -56,6 +57,21 @@ def sanitise_strings(record, escape_mode='double'):
     return record
 
 
+def cast_string(string):
+    if string.lower() == 'none':
+        return None
+    elif string.lower() == 'true':
+        return True
+    elif string.lower() == 'false':
+        return False
+    elif string.strip('1234567890-') == '':
+        return int(string)
+    elif string.strip('1234567890-.') == '':
+        return decimal.Decimal(string)
+    else:
+        return string
+
+
 def str_to_json(string):
     # TODO: Add proper handling of apostrophes.
     args = string.split('\'')
@@ -81,9 +97,3 @@ def get_config_params(filepath, section):
             params[option] = value
 
     return params
-
-
-def get_banned_words(filepath):
-    with open(filepath, 'r') as file:
-        words = file.read().split('\n')
-        return words
