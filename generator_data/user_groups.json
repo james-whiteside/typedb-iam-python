@@ -1,127 +1,145 @@
 [
   {
   "name": "engineering",
-  "type": "business_unit",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
-  "member": ["engineering/core", "engineering/client", "engineering/studio"]
+  "member": ["core", "client", "studio"]
   },
   {
-  "name": "engineering/core",
-  "type": "business_unit",
-  "is_abstract": false,
-  "member": []
-  },
-  {
-  "name": "engineering/client",
-  "type": "business_unit",
+  "name": "core",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
-  "name": "engineering/studio",
-  "type": "business_unit",
+  "name": "client",
+  "type": ["subject", "user_group", "business_unit"],
+  "is_abstract": false,
+  "member": []
+  },
+  {
+  "name": "studio",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "product",
-  "type": "business_unit",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
-  "member": ["product/research", "product/documentation"]
+  "member": ["research", "documentation"]
   },
   {
-  "name": "product/research",
-  "type": "business_unit",
+  "name": "research",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
-  "name": "product/documentation",
-  "type": "business_unit",
+  "name": "documentation",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "operations",
-  "type": "business_unit",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "people",
-  "type": "business_unit",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "executive",
-  "type": "business_unit",
+  "type": ["subject", "user_group", "business_unit"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "docs_admin",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["sys_admin"]
   },
   {
   "name": "docs_editor",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["docs_admin"]
   },
   {
   "name": "web_admin",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["sys_admin"]
   },
   {
   "name": "web_editor",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["web_admin"]
   },
   {
   "name": "git_admin",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["sys_admin"]
   },
   {
   "name": "git_editor",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": ["git_admin"]
   },
   {
   "name": "sys_admin",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "manager",
-  "type": "user_role",
+  "type": ["subject", "user_group", "user_role"],
+  "is_abstract": false,
+  "member": ["engineering_lead", "product_lead", "operations_lead"]
+  },
+  {
+  "name": "engineering_lead",
+  "type": ["subject", "user_group", "user_role"],
+  "is_abstract": false,
+  "member": []
+  },
+  {
+  "name": "product_lead",
+  "type": ["subject", "user_group", "user_role"],
+  "is_abstract": false,
+  "member": []
+  },
+  {
+  "name": "operations_lead",
+  "type": ["subject", "user_group", "user_role"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "webinars@vaticle.com",
-  "type": "user_account",
+  "type": ["subject", "user_group", "user_account"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "sales@vaticle.com",
-  "type": "user_account",
+  "type": ["subject", "user_group", "user_account"],
   "is_abstract": false,
   "member": []
   },
   {
   "name": "careers@vaticle.com",
-  "type": "user_account",
+  "type": ["subject", "user_group", "user_account"],
   "is_abstract": false,
   "member": []
   }

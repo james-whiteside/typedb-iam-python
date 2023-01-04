@@ -1,21 +1,21 @@
 [
   {
     "name": "engineering",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["engineering/core", "engineering/client", "engineering/studio", "engineering/web"]
   },
   {
     "name": "engineering/core",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["engineering/core/src"]
   },
   {
     "name": "engineering/core/src",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": [
@@ -40,133 +40,133 @@
   },
   {
     "name": "engineering/core/src/common",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/concept",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/concurrent",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/config",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/database",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/dependencies",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/docs",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/encoding",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/graph",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/logic",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/migrator",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/pattern",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/query",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/reasoner",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/server",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/test",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/core/src/traversal",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["engineering/client/src"]
   },
   {
     "name": "engineering/client/src",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": [
@@ -184,84 +184,84 @@
   },
   {
     "name": "engineering/client/src/api",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/common",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/concept",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/connection",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/dependencies",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/docs",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/logic",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/query",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/stream",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/client/src/test",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["engineering/studio/src"]
   },
   {
     "name": "engineering/studio/src",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": [
@@ -278,77 +278,77 @@
   },
   {
     "name": "engineering/studio/src/binary",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/config",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/dependencies",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/docs",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/framework",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/module",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/resources",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/service",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/studio/src/test",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.java",
     "member": []
   },
   {
     "name": "engineering/web",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["engineering/web/src"]
   },
   {
     "name": "engineering/web/src",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": [
@@ -362,217 +362,231 @@
   },
   {
     "name": "engineering/web/src/api",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": []
   },
   {
     "name": "engineering/web/src/assets",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:3>&_&<resolution>&.svg",
     "member": []
   },
   {
     "name": "engineering/web/src/common",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": []
   },
   {
     "name": "engineering/web/src/config",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": []
   },
   {
     "name": "engineering/web/src/pages",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": []
   },
   {
     "name": "engineering/web/src/state",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.ts",
     "member": []
   },
   {
+    "name": "*/src/docs",
+    "type": ["object", "resource_collection", "directory"],
+    "is_abstract": true,
+    "resource_format": null,
+    "member": ["engineering/core/src/docs", "engineering/client/src/docs", "engineering/studio/src/docs"]
+  },
+  {
+    "name": "*/src",
+    "type": ["object", "resource_collection", "directory"],
+    "is_abstract": true,
+    "resource_format": null,
+    "member": ["engineering/core/src", "engineering/client/src", "engineering/studio/src", "engineering/web/src"]
+  },
+  {
     "name": "product",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["product/research", "product/documentation"]
   },
   {
     "name": "product/research",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["product/research/code", "product/research/test_data", "product/research/reports"]
   },
   {
     "name": "product/research/code",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.py",
     "member": []
   },
   {
     "name": "product/research/test_data",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&_&<letters|length:5>&.tsv",
     "member": []
   },
   {
     "name": "product/research/reports",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:7>&_&<date>&.pdf",
     "member": []
   },
   {
     "name": "product/documentation",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["product/documentation/published", "product/documentation/drafts", "product/documentation/examples"]
   },
   {
     "name": "product/documentation/published",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:7>&.md",
     "member": []
   },
   {
     "name": "product/documentation/drafts",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:7>&.md",
     "member": []
   },
   {
     "name": "product/documentation/examples",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:5>&.tql",
     "member": []
   },
   {
     "name": "operations",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["operations/finances", "operations/sales", "operations/marketing"]
   },
   {
     "name": "operations/finances",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["operations/finances/budgets", "operations/finances/reports", "operations/finances/invoices"]
   },
   {
     "name": "operations/finances/budgets",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "budget_&<date|day:1>&.xlsx",
     "member": []
   },
   {
     "name": "operations/finances/reports",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "report_&<date|day:-1>&.xlsx",
     "member": []
   },
   {
     "name": "operations/finances/invoices",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "invoice_&<date>&.pdf",
     "member": []
   },
   {
     "name": "operations/sales",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["operations/sales/invoices", "operations/sales/orders"]
   },
   {
     "name": "operations/sales/invoices",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "invoice_&<date>&.pdf",
     "member": []
   },
   {
     "name": "operations/sales/orders",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "order_&<date>&.xlsx",
     "member": []
   },
   {
     "name": "operations/marketing",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["operations/marketing/copy", "operations/marketing/assets"]
   },
   {
     "name": "operations/marketing/copy",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:7>&.docx",
     "member": []
   },
   {
     "name": "operations/marketing/assets",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<letters|length:3>&_&<resolution>&.png",
     "member": []
   },
   {
     "name": "people",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["people/recruitment", "people/contact_details"]
   },
   {
     "name": "people/recruitment",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": true,
     "resource_format": null,
     "member": ["people/recruitment/form_outputs", "people/recruitment/cvs"]
   },
   {
     "name": "people/recruitment/form_outputs",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<name|sep:_>&_&<date|past_years:1>&.xlsx",
     "member": []
   },
   {
     "name": "people/recruitment/cvs",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<name|sep:_>&.pdf",
     "member": []
   },
   {
     "name": "people/contact_details",
-    "type": "directory",
+    "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
     "resource_format": "<name|sep:_>&.xlsx",
     "member": []

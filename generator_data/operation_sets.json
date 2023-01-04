@@ -1,0 +1,44 @@
+[
+  {
+    "name": "perform_all_actions",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["manage_ownership", "manage_subdirectories", "perform_writes"]
+  },
+  {
+    "name": "perform_admin_actions",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["manage_permissions", "manage_subdirectories", "perform_writes"]
+  },
+  {
+    "name": "manage_ownership",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["grant_ownership", "revoke_ownership", "manage_permissions"]
+  },
+  {
+    "name": "manage_permissions",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["grant_permission", "revoke_permission"]
+  },
+  {
+    "name": "manage_subdirectories",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["create_subdirectory", "delete_subdirectory"]
+  },
+  {
+    "name": "perform_writes",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["create_file", "modify_file", "delete_file", "perform_reads"]
+  },
+  {
+    "name": "perform_reads",
+    "type": ["action", "operation_set"],
+    "object_type": "directory",
+    "member": ["view_file"]
+  }
+]

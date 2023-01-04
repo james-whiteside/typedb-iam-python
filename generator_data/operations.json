@@ -1,0 +1,52 @@
+[
+  {
+    "name": "grant_ownership",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "revoke_ownership",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "grant_permission",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "revoke_permission",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "create_subdirectory",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "delete_subdirectory",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "create_file",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "modify_file",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "delete_file",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  },
+  {
+    "name": "view_file",
+    "type": ["action", "operation"],
+    "object_type": "directory"
+  }
+]

@@ -1,0 +1,194 @@
+[
+  {
+    "type": ["permission"],
+    "subject": ["engineering"],
+    "subject_type": "business_unit",
+    "object": ["engineering"],
+    "object_type": "directory",
+    "action": ["perform_reads"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["core"],
+    "subject_type": "business_unit",
+    "object": ["engineering/core"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["client"],
+    "subject_type": "business_unit",
+    "object": ["engineering/client"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["studio"],
+    "subject_type": "business_unit",
+    "object": ["engineering/studio"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["product"],
+    "subject_type": "business_unit",
+    "object": ["product"],
+    "object_type": "directory",
+    "action": ["perform_reads"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["research"],
+    "subject_type": "business_unit",
+    "object": ["product/research"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["documentation"],
+    "subject_type": "business_unit",
+    "object": ["product/documentation"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["operations"],
+    "subject_type": "business_unit",
+    "object": ["operations"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["people"],
+    "subject_type": "business_unit",
+    "object": ["people"],
+    "object_type": "directory",
+    "action": ["manage_subdirectories", "perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["executive"],
+    "subject_type": "business_unit",
+    "object": ["engineering", "product", "operations", "people"],
+    "object_type": "directory",
+    "action": ["perform_all_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["docs_admin"],
+    "subject_type": "user_role",
+    "object": ["*/src/docs", "product/documentation"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["docs_editor"],
+    "subject_type": "user_role",
+    "object": ["*/src/docs", "product/documentation"],
+    "object_type": "directory",
+    "action": ["perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["web_admin"],
+    "subject_type": "user_role",
+    "object": ["engineering/web"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["web_editor"],
+    "subject_type": "user_role",
+    "object": ["engineering/web"],
+    "object_type": "directory",
+    "action": ["perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["git_admin"],
+    "subject_type": "user_role",
+    "object": ["*/src"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["git_editor"],
+    "subject_type": "user_role",
+    "object": ["*/src"],
+    "object_type": "directory",
+    "action": ["perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["sys_admin"],
+    "subject_type": "user_role",
+    "object": ["engineering", "product", "operations", "people"],
+    "object_type": "directory",
+    "action": ["perform_all_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["manager"],
+    "subject_type": "user_role",
+    "object": ["people"],
+    "object_type": "directory",
+    "action": ["perform_reads"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["engineering_lead"],
+    "subject_type": "user_role",
+    "object": ["engineering"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["product_lead"],
+    "subject_type": "user_role",
+    "object": ["product"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["operations_lead"],
+    "subject_type": "user_role",
+    "object": ["operations"],
+    "object_type": "directory",
+    "action": ["perform_admin_actions"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["webinars@vaticle.com"],
+    "subject_type": "user_account",
+    "object": ["product"],
+    "object_type": "directory",
+    "action": ["perform_reads"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["sales@vaticle.com"],
+    "subject_type": "user_account",
+    "object": ["operations/sales"],
+    "object_type": "directory",
+    "action": ["perform_writes"]
+  },
+  {
+    "type": ["permission"],
+    "subject": ["careers@vaticle.com"],
+    "subject_type": "user_account",
+    "object": ["people/recruitment"],
+    "object_type": "directory",
+    "action": ["perform_writes"]
+  }
+]
