@@ -1,37 +1,41 @@
 import json
-import random
 import datetime
 import calendar
+import string
 import uuid
 import copy
-import names as name_generator
+import os
+from random import Random
+
+import src.io_controller as io_controller
 import src.utilities as utilities
+from src.io_controller import ProgressBar
 
 
 def generate_uuid():
     return str(uuid.uuid4())
 
 
-def generate_letter():
-    return random.choice('abcdefghijklmnopqrstuvwxyz')
+def generate_letter(rng=Random()):
+    return rng.choice(string.ascii_lowercase)
 
 
-def generate_letters(length, prevent_banned_strings=True):
-    letters = ''.join(generate_letter() for i in range(length))
+def generate_letters(length, prevent_banned_strings=True, rng=Random()):
+    letters = ''.join(generate_letter(rng=rng) for _ in range(length))
 
     if prevent_banned_strings:
-        with open('generator_data/banned_strings.tsv', 'r') as file:
+        with open('generator_tables/banned_strings.tsv', 'r') as file:
             banned_strings = file.read().split('\n')
 
         if any(banned_string in letters for banned_string in banned_strings):
-            return generate_letters(length)
+            return generate_letters(length, rng=rng)
 
     return letters
 
 
-def generate_date(past_years=10, year=None, month=None, day=None):
+def generate_date(past_years=10, year=None, month=None, day=None, rng=Random()):
     date = datetime.date.today()
-    date -= datetime.timedelta(days=random.randint(0, past_years * 365))
+    date -= datetime.timedelta(days=rng.randint(0, past_years * 365))
 
     if year is not None:
         date = date.replace(year=year)
@@ -48,20 +52,51 @@ def generate_date(past_years=10, year=None, month=None, day=None):
     return str(date)
 
 
-def generate_name(sep=' ', lower=False):
-    name = sep.join(name_generator.get_full_name().split(' '))
+def load_name(name_type, rng=Random()):
+    # Name lists taken from: https://github.com/treyhunner/names/
+    # Licensed under the MIT License.
 
-    if lower:
+    r = rng.uniform(0.0, 90.0)
+
+    with open('generator_tables/' + name_type + '_names.tsv') as file:
+        for line in file:
+            name, weight, cumulative, rank = line.split('\t')
+
+            if float(cumulative) > r:
+                return name
+
+
+def generate_name(name_type='full', case='title', rng=Random()):
+    if name_type == 'male':
+        name = load_name('male', rng=rng)
+    elif name_type == 'female':
+        name = load_name('female', rng=rng)
+    elif name_type == 'first':
+        gender = rng.choice(('male', 'female'))
+        name = load_name(gender, rng=rng)
+    elif name_type == 'last':
+        name = load_name('last', rng=rng)
+    elif name_type == 'full':
+        gender = rng.choice(('male', 'female'))
+        name = load_name(gender, rng=rng) + ' ' + load_name('last', rng=rng)
+    else:
+        name = ''
+
+    if case == 'title':
+        name = name.title()
+    elif case == 'lower':
         name = name.lower()
+    elif case == 'upper':
+        name = name.upper()
 
     return name
 
 
-def generate_resolution():
-    return str(random.randint(1, 4) * 360) + 'x' + str(random.randint(1, 4) * 360)
+def generate_resolution(rng=Random()):
+    return str(rng.randint(1, 4) * 360) + 'x' + str(rng.randint(1, 4) * 360)
 
 
-def construct_string(constructor):
+def construct_string(constructor, rng=Random()):
     # Generates a string from a constructor string.
     # A constructor string is formed of any number of parts separated by the '&' character.
     # A constructor part consists either of a raw string, or a generator command.
@@ -71,39 +106,44 @@ def construct_string(constructor):
     # The following are reserved characters: & < > | :
     # Example: constructor="<name>&'s date of birth is &<date|past_years:50>&."
 
-    string = ''
+    output = ''
 
     for part in constructor.split('&'):
         if part[0] == '<' and part[-1] == '>':
             args = part[1:-1].split('|')
             command = args.pop(0)
+            kwargs = {arg.split(':')[0]: utilities.cast_string(arg.split(':')[1]) for arg in args}
 
             if command == 'uuid':
                 generator = generate_uuid
             elif command == 'letter':
                 generator = generate_letter
+                kwargs['rng'] = rng
             elif command == 'letters':
                 generator = generate_letters
+                kwargs['rng'] = rng
             elif command == 'date':
                 generator = generate_date
+                kwargs['rng'] = rng
             elif command == 'name':
                 generator = generate_name
+                kwargs['rng'] = rng
             elif command == 'resolution':
                 generator = generate_resolution
+                kwargs['rng'] = rng
             else:
-                string += part
+                output += part
                 continue
-
-            kwargs = {arg.split(':')[0]: utilities.cast_string(arg.split(':')[1]) for arg in args}
-            string += generator(**kwargs)
+            
+            output += generator(**kwargs)
         else:
-            string += part
+            output += part
 
-    return string
+    return output
 
 
 def load_user_groups(group_type='user_group', get_abstract_groups=True):
-    with open('generator_data/user_groups.json', 'r') as file:
+    with open('generator_tables/user_groups.json', 'r') as file:
         user_groups = json.load(file)
 
     user_groups = list(group for group in user_groups if group_type in group['type'])
@@ -114,48 +154,54 @@ def load_user_groups(group_type='user_group', get_abstract_groups=True):
     return user_groups
 
 
-def generate_business_units():
+def generate_business_units(rng=Random()):
     units = load_user_groups('business_unit', get_abstract_groups=False)
-    return list(unit['name'] for unit in [random.choice(units)])
+    return list(unit['name'] for unit in [rng.choice(units)])
 
 
-def generate_user_roles():
+def generate_user_roles(rng=Random()):
     roles = load_user_groups('user_role', get_abstract_groups=False)
-    return list(role['name'] for role in roles if random.random() < 0.15)
+    return list(role['name'] for role in roles if rng.random() < 0.15)
 
 
-def generate_user_accounts():
+def generate_user_accounts(rng=Random()):
     accounts = load_user_groups('user_account', get_abstract_groups=False)
-    return list(account['name'] for account in accounts if random.random() < 0.15)
+    return list(account['name'] for account in accounts if rng.random() < 0.15)
 
 
-def generate_user(name=None):
+def generate_user(name=None, rng=Random()):
     if name is None:
-        name = generate_name()
+        name = generate_name(rng=rng)
 
     user = {
         'name': name,
         'type': ['subject', 'user', 'person'],
         'email': '.'.join(name.lower() for name in name.split(' ')) + '@vaticle.com',
-        'business_unit': generate_business_units(),
-        'user_role': generate_user_roles(),
-        'user_account': generate_user_accounts(),
+        'business_unit': generate_business_units(rng=rng),
+        'user_role': generate_user_roles(rng=rng),
+        'user_account': generate_user_accounts(rng=rng),
         'uuid': generate_uuid()
     }
 
     return user
 
 
-def generate_users(count):
+def generate_users(count, rng=Random()):
     names = set()
+    io_controller.out_info('Generating', count, 'names:')
 
-    while len(names) < count:
-        names.add(generate_name())
+    with ProgressBar(count, out_level='info') as progress_bar:
+        while len(names) < count:
+            names.add(generate_name(rng=rng))
+            progress_bar.set_step(len(names))
 
     users = list()
+    io_controller.out_info('Generating', count, 'users:')
 
-    for name in names:
-        users.append(generate_user(name))
+    with ProgressBar(count, out_level='info') as progress_bar:
+        for name in sorted(list(names)):
+            users.append(generate_user(name, rng=rng))
+            progress_bar.increment()
 
     return users
 
@@ -178,20 +224,24 @@ def get_user_groups():
     return user_groups
 
 
-def generate_subjects(user_count):
-    users = generate_users(user_count)
+def generate_subjects(user_count, rng=Random()):
+    users = generate_users(user_count, rng=rng)
     user_groups = get_user_groups()
+    io_controller.out_info('Assigning', len(users), 'users to', len(user_groups), 'groups:')
 
-    for group in user_groups:
-        for user in users:
-            if group['name'] in user['business_unit'] + user['user_role'] + user['user_account']:
-                group['member'].append(user['uuid'])
+    with ProgressBar(len(user_groups) * len(users), out_level='info') as progress_bar:
+        for group in user_groups:
+            for user in users:
+                if group['name'] in user['business_unit'] + user['user_role'] + user['user_account']:
+                    group['member'].append(user['uuid'])
+
+                progress_bar.increment()
 
     return users + user_groups
 
 
 def load_resource_collections(collection_type='resource_collection', get_abstract_collections=True):
-    with open('generator_data/resource_collections.json', 'r') as file:
+    with open('generator_tables/resource_collections.json', 'r') as file:
         resource_collections = json.load(file)
 
     resource_collections = list(collection for collection in resource_collections if collection_type in collection['type'])
@@ -202,16 +252,16 @@ def load_resource_collections(collection_type='resource_collection', get_abstrac
     return resource_collections
 
 
-def generate_directory():
+def generate_directory(rng=Random()):
     collections = load_resource_collections('directory', get_abstract_collections=False)
-    return random.choice(collections)
+    return rng.choice(collections)
 
 
-def generate_resource():
-    directory = generate_directory()
+def generate_resource(rng=Random()):
+    directory = generate_directory(rng=rng)
 
     resource = {
-        'name': construct_string(directory['resource_format']),
+        'name': construct_string(directory['resource_format'], rng=rng),
         'type': ['object', 'resource', 'file'],
         'parent': [directory['name']],
         'parent_type': 'directory',
@@ -221,12 +271,15 @@ def generate_resource():
     return resource
 
 
-def generate_resources(count):
+def generate_resources(count, rng=Random()):
     resources = list()
+    io_controller.out_info('Generating', count, 'resources:')
 
-    while len(resources) < count:
-        resource = generate_resource()
-        resources.append(resource)
+    with ProgressBar(count, out_level='info') as progress_bar:
+        while len(resources) < count:
+            resource = generate_resource(rng=rng)
+            resources.append(resource)
+            progress_bar.increment()
 
     return resources
 
@@ -249,20 +302,24 @@ def get_resource_collections():
     return resource_collections
 
 
-def generate_objects(resource_count):
-    resources = generate_resources(resource_count)
+def generate_objects(resource_count, rng=Random()):
+    resources = generate_resources(resource_count, rng=rng)
     resource_collections = get_resource_collections()
+    io_controller.out_info('Assigning', len(resources), 'resources to', len(resource_collections), 'collections:')
 
-    for collection in resource_collections:
-        for resource in resources:
-            if resource['parent_type'] in collection['type'] and collection['name'] in resource['parent']:
-                collection['member'].append(resource['uuid'])
+    with ProgressBar(len(resources) * len(resource_collections), out_level='info') as progress_bar:
+        for collection in resource_collections:
+            for resource in resources:
+                if resource['parent_type'] in collection['type'] and collection['name'] in resource['parent']:
+                    collection['member'].append(resource['uuid'])
+
+                progress_bar.increment()
 
     return resources + resource_collections
 
 
 def load_operations(object_type=None):
-    with open('generator_data/operations.json', 'r') as file:
+    with open('generator_tables/operations.json', 'r') as file:
         operations = json.load(file)
 
     if object_type is not None:
@@ -272,7 +329,7 @@ def load_operations(object_type=None):
 
 
 def load_operation_sets(object_type=None):
-    with open('generator_data/operation_sets.json', 'r') as file:
+    with open('generator_tables/operation_sets.json', 'r') as file:
         operation_sets = json.load(file)
 
     if object_type is not None:
@@ -308,7 +365,7 @@ def get_actions():
 
 
 def load_permissions(subject_type=None, object_type=None):
-    with open('generator_data/permissions.json', 'r') as file:
+    with open('generator_tables/permissions.json', 'r') as file:
         permissions = json.load(file)
 
     if subject_type is not None:
@@ -414,7 +471,7 @@ def get_nested_memberships(item, item_list):
     return get_items(membership_uuids, item_list)
 
 
-def assign_group_owner(user_group, item_list):
+def assign_group_owner(user_group, item_list, rng=Random()):
     users = list(item for item in item_list if 'user' in item['type'])
     members = get_nested_members(user_group, item_list)
     candidate_owner_uuids = list()
@@ -423,17 +480,20 @@ def assign_group_owner(user_group, item_list):
         if member in users:
             candidate_owner_uuids.append(member['uuid'])
 
-    user_group['owner'] = [random.choice(candidate_owner_uuids)]
+    user_group['owner'] = [rng.choice(candidate_owner_uuids)]
 
 
-def assign_group_owners(item_list):
+def assign_group_owners(item_list, rng=Random()):
     user_groups = list(item for item in item_list if 'user_group' in item['type'])
+    io_controller.out_info('Assigning owners for', len(user_groups), 'groups:')
 
-    for user_group in user_groups:
-        assign_group_owner(user_group, item_list)
+    with ProgressBar(len(user_groups), out_level='info') as progress_bar:
+        for user_group in user_groups:
+            assign_group_owner(user_group, item_list, rng=rng)
+            progress_bar.increment()
 
 
-def assign_object_owner(obj, item_list):
+def assign_object_owner(obj, item_list, rng=Random()):
     permissions = list(item for item in item_list if 'permission' in item['type'])
     membership_uuids = get_nested_membership_uuids(obj['uuid'], item_list) + [obj['uuid']]
     subject_uuids = list()
@@ -448,14 +508,17 @@ def assign_object_owner(obj, item_list):
     for uuid in subject_uuids:
         candidate_owner_uuids += get_nested_member_uuids(uuid, item_list)
 
-    obj['owner'] = [random.choice(candidate_owner_uuids)]
+    obj['owner'] = [rng.choice(candidate_owner_uuids)]
 
 
-def assign_object_owners(item_list):
+def assign_object_owners(item_list, rng=Random()):
     objects = list(item for item in item_list if 'object' in item['type'])
+    io_controller.out_info('Assigning owners for', len(objects), 'objects:')
 
-    for obj in objects:
-        assign_object_owner(obj, item_list)
+    with ProgressBar(len(objects), out_level='info') as progress_bar:
+        for obj in objects:
+            assign_object_owner(obj, item_list, rng=rng)
+            progress_bar.increment()
 
 
 def assign_owner_permissions(item_list):
@@ -482,25 +545,45 @@ def assign_owner_permissions(item_list):
 
         permission['action'] = permission_actions
 
-    for obj in objects:
-        owner_permissions = copy.deepcopy(owner_permissions_template)
+    io_controller.out_info('Assigning owner permissions for', len(objects), 'objects:')
 
-        for permission in owner_permissions:
-            permission['object'].append(obj['uuid'])
-            permission['subject'] += obj['owner']
+    with ProgressBar(len(objects), out_level='info') as progress_bar:
+        for obj in objects:
+            owner_permissions = copy.deepcopy(owner_permissions_template)
 
-            item_list.append(permission)
+            for permission in owner_permissions:
+                permission['object'].append(obj['uuid'])
+                permission['subject'] += obj['owner']
+
+                item_list.append(permission)
+
+            progress_bar.increment()
 
 
-def generate_data(user_count, resource_count):
-    subjects = generate_subjects(user_count)
-    objects = generate_objects(resource_count)
+def generate_data():
+    params = utilities.get_config_params('config.ini', 'data_generation')
+    user_count = int(params['user_count'])
+    resource_count = int(params['resource_count'])
+
+    io_controller.out_info('Generating data...')
+
+    try:
+        rng_seed = int(params['rng_seed'])
+        rng = Random(rng_seed)
+        io_controller.out_debug('Using seed:', rng_seed)
+    except (KeyError, ValueError):
+        rng = Random()
+        io_controller.out_debug('Using random seed.')
+
+    subjects = generate_subjects(user_count, rng=rng)
+    objects = generate_objects(resource_count, rng=rng)
     actions = get_actions()
     permissions = get_permissions(subjects, objects, actions)
     items = subjects + objects + actions + permissions
-    assign_group_owners(items)
-    assign_object_owners(items)
+    assign_group_owners(items, rng=rng)
+    assign_object_owners(items, rng=rng)
     assign_owner_permissions(items)
+    io_controller.out_info('Data generation complete.')
 
     data = {
         'user': list(item for item in items if 'user' in item['type']),
@@ -513,3 +596,86 @@ def generate_data(user_count, resource_count):
     }
 
     return data
+
+
+def get_last_auto_save_number():
+    if not os.path.exists('data'):
+        return 0
+
+    file_names = os.listdir('data')
+    auto_save_numbers = [0]
+
+    for name in file_names:
+        prefix, _, suffix = name.partition('_')
+
+        if prefix == 'auto' and suffix != '' and all(char in string.digits for char in suffix):
+            auto_save_numbers.append(int(suffix))
+
+    return sorted(auto_save_numbers)[-1]
+
+
+def save_data(data):
+    if not os.path.exists('data'):
+        os.makedirs('data')
+
+    params = utilities.get_config_params('config.ini', 'data_storage')
+
+    try:
+        dataset_name = params['dataset_name']
+    except KeyError:
+        dataset_name = ''
+
+    if dataset_name == '':
+        dataset_name = 'auto_' + str(get_last_auto_save_number() + 1)
+
+    dataset_path = 'data/' + dataset_name
+
+    try:
+        os.makedirs(dataset_path)
+    except FileExistsError:
+        io_controller.out_warning('A dataset with the name', dataset_name, 'already exists.')
+
+        if io_controller.in_input('Overwrite the previous dataset? (Y/N)').lower() == 'y':
+            io_controller.out_warning('Overwriting previous dataset.')
+        else:
+            io_controller.out_warning('Dataset save aborted.')
+            return
+
+    for key in data:
+        file_path = dataset_path + '/' + key + '.json'
+
+        with open(file_path, 'w') as file:
+            json.dump(data[key], file, indent=2)
+
+        io_controller.out_debug(key, 'data saved to', file_path)
+
+
+def load_data():
+    params = utilities.get_config_params('config.ini', 'data_storage')
+
+    try:
+        dataset_name = params['dataset_name']
+    except KeyError:
+        dataset_name = ''
+
+    if dataset_name == '':
+        dataset_name = 'auto_' + str(get_last_auto_save_number())
+
+    dataset_path = 'data/' + dataset_name
+    data = dict()
+
+    try:
+        for file_name in os.listdir(dataset_path):
+            key = file_name.rpartition('.')[0]
+            file_path = dataset_path + '/' + file_name
+
+            with open(file_path, 'r') as file:
+                data[key] = json.load(file)
+
+            io_controller.out_debug(key, 'data loaded from', file_path)
+
+        return data
+    except FileNotFoundError:
+        io_controller.out_error('No dataset with the name', dataset_name, 'was found.')
+        io_controller.out_error('Data should be stored under:', os.getcwd() + '/data')
+        return

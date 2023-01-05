@@ -4,9 +4,9 @@ import sys
 import src.utilities as utilities
 
 
-def get_log_level():
+def get_output_level(level_type):
     try:
-        log_arg = utilities.get_config_params('src/config.ini', 'logging')['level']
+        log_arg = utilities.get_config_params('config.ini', 'io_control')[level_type + '_level']
     except IndexError:
         return 5
 
@@ -30,26 +30,19 @@ def create_log():
 
     log_name = str(datetime.datetime.now())[:19].replace(':', '-').replace(' ', '_')
 
-    with open('logs/info.ini', 'w') as log_config:
-        log_config.write('[logs]\nlast_log=' + log_name)
-
     with open('logs/' + log_name + '.log', 'a'):
         pass
 
 
 def write_to_last_log(entry):
     try:
-        last_log = utilities.get_config_params('logs/info.ini', 'logs')['last_log']
-    except IndexError:
+        last_log = sorted(os.listdir('logs'))[-1]
+    except FileNotFoundError or IndexError:
         create_log()
-        last_log = utilities.get_config_params('logs/info.ini', 'logs')['last_log']
+        last_log = sorted(os.listdir('logs'))[-1]
 
-    with open('logs/' + last_log + '.log', 'a') as log:
+    with open('logs/' + last_log, 'a') as log:
         log.write(entry + '\n')
-
-
-def kill():
-    sys.exit()
 
 
 def in_raw(prompt, no_log=False):
@@ -67,12 +60,12 @@ def in_input(prompt, no_log=False):
 
 
 def out_raw(*args, log_level=-1, no_log=False, sep=' ', **kwargs):
-    if log_level <= get_log_level():
+    if log_level <= get_output_level(level_type='display'):
         print(*args, sep=sep, **kwargs)
 
-        if not no_log:
-            entry = str(datetime.datetime.now()) + ' ' + sep.join(list(str(arg) for arg in args))
-            write_to_last_log(entry)
+    if log_level <= get_output_level(level_type='logging') and not no_log:
+        entry = str(datetime.datetime.now()) + ' ' + sep.join(list(str(arg) for arg in args))
+        write_to_last_log(entry)
 
 
 def out_debug(*args, **kwargs):
@@ -102,6 +95,11 @@ def out_fatal(*args, **kwargs):
     out_raw('FATAL:', *args, log_level=0, **kwargs)
 
 
+def kill():
+    out_debug('io_controller.kill() was called')
+    sys.exit()
+
+
 def get_out_function(level):
     if level in ('0', 'fatal'):
         return out_fatal
@@ -118,51 +116,83 @@ def get_out_function(level):
 
 
 class ProgressBar:
-    def __init__(self, total_steps, sigfig=2):
-        self.start_time = datetime.datetime.now()
-        self.current_time = datetime.datetime.now()
-        self.last_print_length = 0
-        self.sigfig = sigfig
+    def __init__(self, total_steps, out_level='raw', sigfig=2):
         self.current_step = 0
         self.total_steps = total_steps
+        self.start_time = datetime.datetime.now()
+        self.current_time = self.start_time
+        self.out_level = out_level
+        self.sigfig = sigfig
+        self.last_print_length = 0
+        self.locked = False
 
-    def increment(self):
-        self.current_step += 1
-        return self
+    def get_progress(self):
+        return self.current_step, self.total_steps
 
-    def set_step(self, step):
-        self.current_step = step
+    def __output_progress(self, no_log=True):
+        if not self.locked:
+            out_function = get_out_function(self.out_level)
+            bar = '|' + '█' * int(50 * self.current_step // self.total_steps) + '-' * (50 - int(50 * self.current_step // self.total_steps)) + '|'
+            progress = str(utilities.intsigfig(100 * self.current_step / self.total_steps, self.sigfig)) + '%'
+
+            if self.current_step == 0 or self.start_time == self.current_time:
+                progress_bar = 'Progress: ' + bar + ' ' + progress
+                out_function(progress_bar + ' ' * max(0, self.last_print_length - len(progress_bar)), end='\r', no_log=no_log)
+                print_length = max(self.last_print_length, len(progress_bar))
+            else:
+                elapsed_time = utilities.format_time(int(round((self.current_time - self.start_time).total_seconds())))
+                remaining_time = utilities.format_time(int(round((self.total_steps - self.current_step) * (self.current_time - self.start_time).total_seconds() / self.current_step)))
+                progress_bar = 'Progress: ' + bar + ' ' + progress + '   Elapsed: ' + elapsed_time + '   Remaining: ' + remaining_time
+                out_function(progress_bar + ' ' * max(0, self.last_print_length - len(progress_bar)), end='\r', no_log=no_log)
+                print_length = max(self.last_print_length, len(progress_bar))
+
+            self.current_time = datetime.datetime.now()
+            self.last_print_length = print_length
+            return True
+        else:
+            return False
+
+    def __output_newline(self):
+        if not self.locked:
+            out_function = get_out_function(self.out_level)
+            out_function(no_log=True)
+            return True
+        else:
+            return False
+
+    def lock(self):
+        self.__output_progress(no_log=False)
+        self.__output_newline()
+        self.locked = True
         return self
 
     def terminate(self):
         self.current_step = self.total_steps
+        self.lock()
         return self
 
-    def print_progress(self, out_level='raw', no_log=True):
-        out_function = get_out_function(out_level)
-        self.current_time = datetime.datetime.now()
-        bar = '|' + '█' * int(50 * self.current_step // self.total_steps) + '-' * (50 - int(50 * self.current_step // self.total_steps)) + '|'
-        progress = str(utilities.intsigfig(100 * self.current_step / self.total_steps, self.sigfig)) + '%'
-
-        if self.start_time is None or self.current_time is None or self.start_time == self.current_time:
-            progress_bar = 'Progress: ' + bar + ' ' + progress
-            out_function(progress_bar + ' ' * max(0, self.last_print_length - len(progress_bar)), end='\r', no_log=no_log)
-            print_length = max(self.last_print_length, len(progress_bar))
+    def __terminate_if_full(self):
+        if self.current_step >= self.total_steps:
+            self.terminate()
+            return True
         else:
-            elapsed_time = utilities.format_time(int(round((self.current_time - self.start_time).total_seconds())))
-            remaining_time = utilities.format_time(int(round((self.total_steps - self.current_step) * (self.current_time - self.start_time).total_seconds() / self.current_step)))
-            progress_bar = 'Progress: ' + bar + ' ' + progress + '   Elapsed: ' + elapsed_time + '   Remaining: ' + remaining_time
-            out_function(progress_bar + ' ' * max(0, self.last_print_length - len(progress_bar)), end='\r', no_log=no_log)
-            print_length = max(self.last_print_length, len(progress_bar))
+            return False
 
-        if self.current_step == self.total_steps:
-            out_function(no_log=True)
-
-        self.last_print_length = print_length
+    def increment(self):
+        self.current_step += 1
+        self.__terminate_if_full()
+        self.__output_progress()
         return self
 
-    def increment_print(self, out_level='raw'):
-        return self.increment().print_progress(out_level=out_level, no_log=True)
+    def set_step(self, step):
+        self.current_step = step
+        self.__terminate_if_full()
+        self.__output_progress()
+        return self
 
-    def terminate_print(self, out_level='raw'):
-        return self.terminate().print_progress(out_level=out_level, no_log=False)
+    def __enter__(self):
+        self.__output_progress()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.lock()

@@ -574,21 +574,21 @@
     "name": "people/recruitment/form_outputs",
     "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
-    "resource_format": "<name|sep:_>&_&<date|past_years:1>&.xlsx",
+    "resource_format": "<name|name_type:first>&_&<name|name_type:last>&_&<date|past_years:1>&.xlsx",
     "member": []
   },
   {
     "name": "people/recruitment/cvs",
     "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
-    "resource_format": "<name|sep:_>&.pdf",
+    "resource_format": "<name|name_type:first>&_&<name|name_type:last>&.pdf",
     "member": []
   },
   {
     "name": "people/contact_details",
     "type": ["object", "resource_collection", "directory"],
     "is_abstract": false,
-    "resource_format": "<name|sep:_>&.xlsx",
+    "resource_format": "<name|name_type:first>&_&<name|name_type:last>&.xlsx",
     "member": []
   }
 ]
