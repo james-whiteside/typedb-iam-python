@@ -6,9 +6,8 @@ import uuid
 import copy
 import os
 from random import Random
-
-import src.io_controller as io_controller
 import src.utilities as utilities
+import src.io_controller as io_controller
 from src.io_controller import ProgressBar
 
 
@@ -190,7 +189,7 @@ def generate_users(count, rng=Random()):
     names = set()
     io_controller.out_info('Generating', count, 'names:')
 
-    with ProgressBar(count, out_level='info') as progress_bar:
+    with ProgressBar(count) as progress_bar:
         while len(names) < count:
             names.add(generate_name(rng=rng))
             progress_bar.set_step(len(names))
@@ -198,7 +197,7 @@ def generate_users(count, rng=Random()):
     users = list()
     io_controller.out_info('Generating', count, 'users:')
 
-    with ProgressBar(count, out_level='info') as progress_bar:
+    with ProgressBar(count) as progress_bar:
         for name in sorted(list(names)):
             users.append(generate_user(name, rng=rng))
             progress_bar.increment()
@@ -229,7 +228,7 @@ def generate_subjects(user_count, rng=Random()):
     user_groups = get_user_groups()
     io_controller.out_info('Assigning', len(users), 'users to', len(user_groups), 'groups:')
 
-    with ProgressBar(len(user_groups) * len(users), out_level='info') as progress_bar:
+    with ProgressBar(len(user_groups) * len(users)) as progress_bar:
         for group in user_groups:
             for user in users:
                 if group['name'] in user['business_unit'] + user['user_role'] + user['user_account']:
@@ -275,7 +274,7 @@ def generate_resources(count, rng=Random()):
     resources = list()
     io_controller.out_info('Generating', count, 'resources:')
 
-    with ProgressBar(count, out_level='info') as progress_bar:
+    with ProgressBar(count) as progress_bar:
         while len(resources) < count:
             resource = generate_resource(rng=rng)
             resources.append(resource)
@@ -307,7 +306,7 @@ def generate_objects(resource_count, rng=Random()):
     resource_collections = get_resource_collections()
     io_controller.out_info('Assigning', len(resources), 'resources to', len(resource_collections), 'collections:')
 
-    with ProgressBar(len(resources) * len(resource_collections), out_level='info') as progress_bar:
+    with ProgressBar(len(resources) * len(resource_collections)) as progress_bar:
         for collection in resource_collections:
             for resource in resources:
                 if resource['parent_type'] in collection['type'] and collection['name'] in resource['parent']:
@@ -487,7 +486,7 @@ def assign_group_owners(item_list, rng=Random()):
     user_groups = list(item for item in item_list if 'user_group' in item['type'])
     io_controller.out_info('Assigning owners for', len(user_groups), 'groups:')
 
-    with ProgressBar(len(user_groups), out_level='info') as progress_bar:
+    with ProgressBar(len(user_groups)) as progress_bar:
         for user_group in user_groups:
             assign_group_owner(user_group, item_list, rng=rng)
             progress_bar.increment()
@@ -515,7 +514,7 @@ def assign_object_owners(item_list, rng=Random()):
     objects = list(item for item in item_list if 'object' in item['type'])
     io_controller.out_info('Assigning owners for', len(objects), 'objects:')
 
-    with ProgressBar(len(objects), out_level='info') as progress_bar:
+    with ProgressBar(len(objects)) as progress_bar:
         for obj in objects:
             assign_object_owner(obj, item_list, rng=rng)
             progress_bar.increment()
@@ -547,7 +546,7 @@ def assign_owner_permissions(item_list):
 
     io_controller.out_info('Assigning owner permissions for', len(objects), 'objects:')
 
-    with ProgressBar(len(objects), out_level='info') as progress_bar:
+    with ProgressBar(len(objects)) as progress_bar:
         for obj in objects:
             owner_permissions = copy.deepcopy(owner_permissions_template)
 

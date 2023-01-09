@@ -116,7 +116,7 @@ def get_out_function(level):
 
 
 class ProgressBar:
-    def __init__(self, total_steps, out_level='raw', sigfig=2):
+    def __init__(self, total_steps, out_level='info', sigfig=2):
         self.current_step = 0
         self.total_steps = total_steps
         self.start_time = datetime.datetime.now()

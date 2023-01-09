@@ -1,0 +1,17 @@
+define
+
+person sub user,
+    owns email;
+
+business-unit sub user-group;
+
+user-role sub user-group;
+
+user-account sub user-group;
+
+file sub resource;
+
+directory sub resource-collection;
+
+email sub attribute,
+    value string;
