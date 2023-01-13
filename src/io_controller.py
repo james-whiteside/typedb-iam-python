@@ -86,9 +86,12 @@ def out_error(*args, **kwargs):
 
 def out_exception(exception):
     try:
-        out_error(exception.message)
+        message = exception.message
     except AttributeError:
-        out_error(exception)
+        message = exception
+
+    for line in message.split('\n'):
+        out_error(line)
 
 
 def out_fatal(*args, **kwargs):

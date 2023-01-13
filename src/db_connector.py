@@ -22,9 +22,9 @@ def get_database_name():
         io_controller.kill()
 
 
-def get_saved_query(query_name):
+def get_saved_query(query_name, query_section):
     try:
-        file_name = utilities.get_config_params('config.ini', 'queries')[query_name]
+        file_name = utilities.get_config_params('config.ini', query_section)[query_name]
 
         if file_name == '':
             raise KeyError
@@ -42,3 +42,7 @@ def get_saved_query(query_name):
         io_controller.out_fatal('Attempted to get saved query', file_name, 'but no file was found.')
         io_controller.out_fatal('Check configuration at:', os.getcwd() + '/config.ini')
         io_controller.kill()
+
+
+def get_saved_queries(query_section):
+    return list(get_saved_query(query_name, query_section) for query_name in utilities.get_config_params('config.ini', query_section))

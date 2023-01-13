@@ -1,0 +1,8 @@
+match
+    $f isa file, has name $f-name;
+    $s isa subject, has name $s-name;
+    $a isa action, has name $a-name;
+    $ac(accessed-object: $f, valid-action: $a) isa access;
+    $pe(permitted-subject: $s, permitted-access: $ac) isa permission;
+    $f-name = "order_2021-08-20.xlsx";
+get $s-name, $a-name;

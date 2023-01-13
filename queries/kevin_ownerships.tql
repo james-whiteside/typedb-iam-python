@@ -1,0 +1,6 @@
+match
+    $p isa person, has name $p-name;
+    $o isa object, has name $o-name;
+    $oo(owned-object: $o, object-owner: $p) isa object-ownership;
+    $p-name = "Kevin Morrison";
+get $o-name;

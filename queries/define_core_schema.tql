@@ -2,7 +2,6 @@ define
 
 subject sub entity,
     abstract,
-    owns name,
     owns credentials,
     plays group-membership:group-member,
     plays group-ownership:group-owner,
@@ -17,7 +16,6 @@ user-group sub subject,
 
 object sub entity,
     abstract,
-    owns name,
     plays collection-membership:collection-member,
     plays object-ownership:owned-object,
     plays access:accessed-object;
@@ -29,7 +27,6 @@ resource-collection sub object,
 
 action sub entity,
     abstract,
-    owns name,
     plays set-membership:set-member,
     plays access:valid-action;
 
@@ -66,9 +63,6 @@ access sub relation,
 permission sub relation,
     relates permitted-subject,
     relates permitted-access;
-
-name sub attribute,
-    value string;
 
 credentials sub attribute,
     value string;

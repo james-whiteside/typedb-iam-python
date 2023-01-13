@@ -1,13 +1,6 @@
 import decimal
 import math
 import configparser
-import json
-from json.decoder import JSONDecodeError
-
-
-def list_print(*args, **kwargs):
-    for item in args[0]:
-        print(item, *args[1:], **kwargs)
 
 
 def sigfig(n, sf):
@@ -46,17 +39,6 @@ def get_file_length(filepath):
     return length
 
 
-def sanitise_strings(record, escape_mode='double'):
-    if escape_mode == 'double':
-        for i in range(len(record)):
-            record[i] = record[i].replace('\'', '\'\'').replace('\"', '\"\"')
-    elif escape_mode == 'backslash':
-        for i in range(len(record)):
-            record[i] = record[i].replace('\'', '\\\'').replace('\"', '\\\"')
-
-    return record
-
-
 def cast_string(string):
     if string.lower() == 'none':
         return None
@@ -72,19 +54,6 @@ def cast_string(string):
         return string
 
 
-def str_to_json(string):
-    # TODO: Add proper handling of apostrophes.
-    args = string.split('\'')
-
-    for i in range(0, len(args), 2):
-        args[i] = args[i].replace('True', 'true').replace('False', 'false').replace('None', 'null')
-
-    try:
-        return json.loads('"'.join(args))
-    except JSONDecodeError:
-        return {'could_not_convert_string_to_json': string}
-
-
 def get_config_params(filepath, section):
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(filepath)
@@ -97,3 +66,14 @@ def get_config_params(filepath, section):
             params[option] = value
 
     return params
+
+
+def sanitise_strings(record, escape_mode='double'):
+    if escape_mode == 'double':
+        for i in range(len(record)):
+            record[i] = record[i].replace('\'', '\'\'').replace('\"', '\"\"')
+    elif escape_mode == 'backslash':
+        for i in range(len(record)):
+            record[i] = record[i].replace('\'', '\\\'').replace('\"', '\\\"')
+
+    return record
