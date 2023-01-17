@@ -2,14 +2,20 @@ import os
 from typedb.common.exception import TypeDBClientException
 import src.utilities as utilities
 import src.io_controller as io_controller
+import src.data_generation as data_generation
 import src.db_connector as db_connector
 import src.db_controller as db_controller
 import src.data_loaders as data_loaders
 
 
-def ensure_connection():
+def generate_new_dataset():
+    data = data_generation.generate_data()
+    data_generation.save_data(data)
+
+
+def ensure_server_connection(client):
     try:
-        db_controller.get_databases()
+        db_controller.get_databases(client)
         io_controller.out_info('Connection to database server confirmed.')
         return True
     except TypeDBClientException:
@@ -19,27 +25,27 @@ def ensure_connection():
         io_controller.kill()
 
 
-def create_database():
+def create_database(client):
     database = db_connector.get_database_name()
 
-    if db_controller.database_exists(database):
+    if db_controller.database_exists(client, database):
         io_controller.out_warning('Existing database with name', database, 'will be deleted.')
 
         if io_controller.in_input('Continue with database creation? (Y/N)').lower() != 'y':
             io_controller.out_info('Database creation aborted.')
             return False
         else:
-            db_controller.delete_database(database)
+            db_controller.delete_database(client, database)
 
-    db_controller.create_database(database)
+    db_controller.create_database(client, database)
     io_controller.out_info('Created database:', database)
     return True
 
 
-def define_schema():
+def define_schema(client):
     database = db_connector.get_database_name()
 
-    if db_controller.schema_exists(database):
+    if db_controller.schema_exists(client, database):
         io_controller.out_warning('Schema already defined for database:', database)
 
         if io_controller.in_input('Continue with schema definition? (Y/N)').lower() != 'y':
@@ -47,47 +53,44 @@ def define_schema():
             return False
 
     schema_queries = db_connector.get_saved_queries('schema_queries')
-
-    for query in schema_queries:
-        db_controller.define(query, database)
-
+    db_controller.define(client, database, schema_queries)
     io_controller.out_info('Defined schema for database:', database)
     return True
 
 
-def load_data():
+def load_data(client):
     database = db_connector.get_database_name()
 
-    if db_controller.data_exists(database):
+    if db_controller.data_exists(client, database):
         io_controller.out_warning('Data already exists in database:', database)
 
         if io_controller.in_input('Continue with data loading? (Y/N)').lower() != 'y':
             io_controller.out_info('Data loading aborted.')
             return False
 
-    data_loaders.load_data()
+    data_loaders.load_data(client)
     io_controller.out_info('Data loaded for database:', database)
     return True
 
 
-def rebuild_database():
-    result = create_database()
+def rebuild_database(client):
+    result = create_database(client)
 
     if not result:
         return False
 
-    define_schema()
-    load_data()
+    define_schema(client)
+    load_data(client)
     return True
 
 
-def provide_graph_statistics():
+def provide_graph_statistics(client):
     database = db_connector.get_database_name()
 
     try:
-        statistics = db_controller.get_graph_statistics(database)
+        statistics = db_controller.get_graph_statistics(client, database)
     except TypeDBClientException:
-        if not db_controller.database_exists(database):
+        if not db_controller.database_exists(client, database):
             io_controller.out_error('Cannot provide graph statistics as no database with name', database, 'exists.')
         else:
             io_controller.out_error('Cannot provide graph statistics as schema is undefined for database:', database)
@@ -105,23 +108,26 @@ def provide_graph_statistics():
     return True
 
 
-def run_test_queries():
+def run_test_queries(client):
     database = db_connector.get_database_name()
     test_queries = db_connector.get_saved_queries('test_queries')
 
     for query in test_queries:
         io_controller.out_info('Running test query:', ' '.join(query.replace('\n', ' ').split()))
+        queries = [query]
 
         try:
-            results = db_controller.get(query, database)
+            results = db_controller.get(client, database, queries)
         except TypeDBClientException as exception:
             io_controller.out_exception(exception)
             continue
 
-        if len(results) == 0:
+        result = results[0]
+
+        if len(result) == 0:
             io_controller.out_info('Returned 0 results.')
         else:
-            io_controller.out_info('Returned', len(results), 'results:')
+            io_controller.out_info('Returned', len(result), 'results:')
 
-            for result in results:
-                io_controller.out_info(result)
+            for item in result:
+                io_controller.out_info(item)

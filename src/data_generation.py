@@ -322,7 +322,7 @@ def load_operations(object_type=None):
         operations = json.load(file)
 
     if object_type is not None:
-        operations = list(operation for operation in operations if operation['object_type'] == object_type)
+        operations = list(operation for operation in operations if object_type in operation['object_type'])
 
     return operations
 
@@ -332,7 +332,7 @@ def load_operation_sets(object_type=None):
         operation_sets = json.load(file)
 
     if object_type is not None:
-        operation_sets = list(opset for opset in operation_sets if opset['object_type'] == object_type)
+        operation_sets = list(opset for opset in operation_sets if object_type in opset['object_type'])
 
     return operation_sets
 
@@ -351,11 +351,11 @@ def get_actions():
         member_ids = list()
 
         for operation in operations:
-            if operation['object_type'] == parent_set['object_type'] and operation['name'] in parent_set['member']:
+            if any(object_type in operation['object_type'] for object_type in parent_set['object_type']) and operation['name'] in parent_set['member']:
                 member_ids.append(operation['uuid'])
 
         for child_set in operation_sets:
-            if child_set['object_type'] == parent_set['object_type'] and child_set['name'] in parent_set['member']:
+            if any(object_type in child_set['object_type'] for object_type in parent_set['object_type']) and child_set['name'] in parent_set['member']:
                 member_ids.append(child_set['uuid'])
 
         parent_set['member'] = member_ids
@@ -368,10 +368,10 @@ def load_permissions(subject_type=None, object_type=None):
         permissions = json.load(file)
 
     if subject_type is not None:
-        permissions = list(permission for permission in permissions if subject_type in permission['subject_type'])
+        permissions = list(permission for permission in permissions if subject_type == permission['subject_type'])
 
     if object_type is not None:
-        permissions = list(permission for permission in permissions if object_type in permission['object_type'])
+        permissions = list(permission for permission in permissions if object_type == permission['object_type'])
 
     return permissions
 
@@ -393,7 +393,7 @@ def get_permissions(subjects, objects, actions):
                 object_ids.append(obj['uuid'])
 
         for action in actions:
-            if action['object_type'] == permission['object_type'] and action['name'] in permission['action']:
+            if permission['object_type'] in action['object_type'] and action['name'] in permission['action']:
                 action_ids.append(action['uuid'])
 
         permission['subject'] = subject_ids

@@ -6,3 +6,4 @@ match
     $pe(permitted-subject: $p, permitted-access: $ac) isa permission;
     $p-name = "Kevin Morrison";
 get $o-name, $a-name;
+limit 10;

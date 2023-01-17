@@ -1,10 +1,12 @@
 import src.io_controller as io_controller
-import src.data_builder as data_builder
-import src.db_operations as db_operations
-
+import src.db_connector as db_connector
+import src.operations as operations
 
 io_controller.create_log()
-db_operations.ensure_connection()
-db_operations.rebuild_database()
-db_operations.provide_graph_statistics()
-db_operations.run_test_queries()
+
+with db_connector.client() as client:
+    operations.generate_new_dataset()
+    operations.ensure_server_connection(client)
+    operations.rebuild_database(client)
+    # operations.provide_graph_statistics(client)
+    operations.run_test_queries(client)
