@@ -1,11 +1,9 @@
 import src.io_controller as io_controller
-import src.db_connector as db_connector
 import src.db_controller as db_controller
 import src.data_generation as data_generation
 
 
-def load_users(client):
-    database = db_connector.get_database_name()
+def load_users(session):
     data = data_generation.load_data()
     users = data['user']
     queries = list()
@@ -17,11 +15,10 @@ def load_users(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(users), 'users:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_user_groups(client):
-    database = db_connector.get_database_name()
+def load_user_groups(session):
     data = data_generation.load_data()
     users = data['user']
     user_groups = data['user_group']
@@ -49,7 +46,7 @@ def load_user_groups(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(user_groups), 'user groups:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for group in user_groups:
@@ -70,7 +67,7 @@ def load_user_groups(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', group_membership_count, 'group memberships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for group in user_groups:
@@ -91,16 +88,15 @@ def load_user_groups(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', group_ownership_count, 'group ownerships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_subjects(client):
-    load_users(client)
-    load_user_groups(client)
+def load_subjects(session):
+    load_users(session)
+    load_user_groups(session)
 
 
-def load_resources(client):
-    database = db_connector.get_database_name()
+def load_resources(session):
     data = data_generation.load_data()
     resources = data['resource']
     subjects = data['user'] + data['user_group']
@@ -114,7 +110,7 @@ def load_resources(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(resources), 'resources:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for resource in resources:
@@ -135,11 +131,10 @@ def load_resources(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', resource_ownership_count, 'resource ownerships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_resource_collections(client):
-    database = db_connector.get_database_name()
+def load_resource_collections(session):
     data = data_generation.load_data()
     resources = data['resource']
     resource_collections = data['resource_collection']
@@ -157,7 +152,7 @@ def load_resource_collections(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(resource_collections), 'resource collections:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for collection in resource_collections:
@@ -178,7 +173,7 @@ def load_resource_collections(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', collection_membership_count, 'collection memberships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for collection in resource_collections:
@@ -199,16 +194,15 @@ def load_resource_collections(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', collection_ownership_count, 'collection ownerships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_objects(client):
-    load_resources(client)
-    load_resource_collections(client)
+def load_objects(session):
+    load_resources(session)
+    load_resource_collections(session)
 
 
-def load_operations(client):
-    database = db_connector.get_database_name()
+def load_operations(session):
     data = data_generation.load_data()
     operations = data['operation']
     objects = data['resource'] + data['resource_collection']
@@ -220,7 +214,7 @@ def load_operations(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(operations), 'operations:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for operation in operations:
@@ -244,11 +238,10 @@ def load_operations(client):
                 queries.append(query)
 
     io_controller.out_info('Loading up to', len(operations) * len(objects), 'potential accesses:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_operation_sets(client):
-    database = db_connector.get_database_name()
+def load_operation_sets(session):
     data = data_generation.load_data()
     operations = data['operation']
     operation_sets = data['operation_set']
@@ -264,7 +257,7 @@ def load_operation_sets(client):
         queries.append(query)
 
     io_controller.out_info('Loading', len(operation_sets), 'operation sets:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for opset in operation_sets:
@@ -285,7 +278,7 @@ def load_operation_sets(client):
                 queries.append(query)
 
     io_controller.out_info('Loading', set_membership_count, 'set memberships:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
     for opset in operation_sets:
@@ -309,16 +302,15 @@ def load_operation_sets(client):
                 queries.append(query)
 
     io_controller.out_info('Loading up to', len(operation_sets) * len(objects), 'potential accesses:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_actions(client):
-    load_operations(client)
-    load_operation_sets(client)
+def load_actions(session):
+    load_operations(session)
+    load_operation_sets(session)
 
 
-def load_permissions(client):
-    database = db_connector.get_database_name()
+def load_permissions(session):
     data = data_generation.load_data()
     permissions = data['permission']
     subjects = data['user'] + data['user_group']
@@ -353,11 +345,11 @@ def load_permissions(client):
                                 queries.append(query)
 
     io_controller.out_info('Loading', len(permissions), 'permissions:')
-    db_controller.insert(client, database, queries, display_progress=True)
+    db_controller.insert(session, queries, display_progress=True)
 
 
-def load_data(client):
-    load_subjects(client)
-    load_objects(client)
-    load_actions(client)
-    load_permissions(client)
+def load_data(session):
+    load_subjects(session)
+    load_objects(session)
+    load_actions(session)
+    load_permissions(session)

@@ -1,11 +1,6 @@
 import os
-from typedb.client import TypeDB
 import src.utilities as utilities
 import src.io_controller as io_controller
-
-
-def client():
-    return TypeDB.core_client(address=TypeDB.DEFAULT_ADDRESS)
 
 
 def get_database_name():

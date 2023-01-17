@@ -119,7 +119,7 @@ def get_out_function(level):
 
 
 class ProgressBar:
-    def __init__(self, total_steps, out_level='info', sigfig=2, locked=False):
+    def __init__(self, total_steps, out_level='info', sigfig=2, display=True):
         self.current_step = 0
         self.total_steps = total_steps
         self.start_time = datetime.datetime.now()
@@ -127,7 +127,7 @@ class ProgressBar:
         self.out_level = out_level
         self.sigfig = sigfig
         self.last_print_length = 0
-        self.locked = locked
+        self.locked = not display
 
     def get_progress(self):
         return self.current_step, self.total_steps
