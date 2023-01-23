@@ -1,6 +1,8 @@
 import decimal
 import math
 import configparser
+from configparser import NoSectionError
+import src.io_controller as io_controller
 
 
 def sigfig(n, sf):
@@ -59,11 +61,15 @@ def get_config_params(filepath, section):
     config.read(filepath)
     params = dict()
 
-    for option in config.options(section):
-        value = config.get(section, option)
+    try:
+        for option in config.options(section):
+            value = config.get(section, option)
 
-        if value is not None:
-            params[option] = value
+            if value is not None:
+                params[option] = value
+    except NoSectionError:
+        io_controller.out_fatal('No section with name', section, 'in config file:', filepath)
+        io_controller.kill()
 
     return params
 

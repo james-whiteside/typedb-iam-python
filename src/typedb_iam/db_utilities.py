@@ -5,7 +5,7 @@ import src.io_controller as io_controller
 
 def get_database_name():
     try:
-        database = utilities.get_config_params('config.ini', 'database')['database_name']
+        database = utilities.get_config_params('typedb_config.ini', 'database')['database_name']
 
         if database == '':
             raise KeyError
@@ -19,7 +19,7 @@ def get_database_name():
 
 def get_rule_inference():
     try:
-        inference = utilities.get_config_params('config.ini', 'database')['rule_inference']
+        inference = utilities.get_config_params('typedb_config.ini', 'database')['rule_inference']
 
         if inference.lower() == 'false':
             io_controller.out_debug('Rule inference set to false.')
@@ -37,7 +37,7 @@ def get_rule_inference():
 
 def get_saved_query(query_name, query_section):
     try:
-        file_name = utilities.get_config_params('config.ini', query_section)[query_name]
+        file_name = utilities.get_config_params('typedb_config.ini', query_section)[query_name]
 
         if file_name == '':
             raise KeyError
@@ -58,4 +58,4 @@ def get_saved_query(query_name, query_section):
 
 
 def get_saved_queries(query_section):
-    return list(get_saved_query(query_name, query_section) for query_name in utilities.get_config_params('config.ini', query_section))
+    return list(get_saved_query(query_name, query_section) for query_name in utilities.get_config_params('typedb_config.ini', query_section))

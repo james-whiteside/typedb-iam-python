@@ -632,12 +632,12 @@ def save_data(data):
     try:
         os.makedirs(dataset_path)
     except FileExistsError:
-        io_controller.out_warning('A dataset with the name', dataset_name, 'already exists.')
+        io_controller.out_warn('A dataset with the name', dataset_name, 'already exists.')
 
         if io_controller.in_input('Overwrite the previous dataset? (Y/N)').lower() == 'y':
-            io_controller.out_warning('Overwriting previous dataset.')
+            io_controller.out_warn('Overwriting previous dataset.')
         else:
-            io_controller.out_warning('Dataset save aborted.')
+            io_controller.out_warn('Dataset save aborted.')
             return
 
     for key in data:

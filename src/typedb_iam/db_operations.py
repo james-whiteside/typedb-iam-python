@@ -3,15 +3,9 @@ from typedb.client import SessionType, TypeDBOptions
 from typedb.common.exception import TypeDBClientException
 import src.utilities as utilities
 import src.io_controller as io_controller
-import src.data_generation as data_generation
-import src.db_utilities as db_utilities
-import src.db_controller as db_controller
-import src.data_loaders as data_loaders
-
-
-def generate_new_dataset():
-    data = data_generation.generate_data()
-    data_generation.save_data(data)
+import src.typedb_iam.db_utilities as db_utilities
+import src.typedb_iam.db_controller as db_controller
+import src.typedb_iam.data_loaders as data_loaders
 
 
 def ensure_server_connection(client):
@@ -30,7 +24,7 @@ def create_database(client):
     database = db_utilities.get_database_name()
 
     if db_controller.database_exists(client, database):
-        io_controller.out_warning('Existing database with name', database, 'will be deleted.')
+        io_controller.out_warn('Existing database with name', database, 'will be deleted.')
 
         if io_controller.in_input('Continue with database creation? (Y/N)').lower() != 'y':
             io_controller.out_info('Database creation aborted.')
@@ -48,7 +42,7 @@ def define_schema(client):
 
     with client.session(database=database, session_type=SessionType.SCHEMA) as session:
         if db_controller.schema_exists(session):
-            io_controller.out_warning('Schema already defined for database:', database)
+            io_controller.out_warn('Schema already defined for database:', database)
 
             if io_controller.in_input('Continue with schema definition? (Y/N)').lower() != 'y':
                 io_controller.out_info('Schema definition aborted.')
@@ -65,7 +59,7 @@ def load_data(client):
 
     with client.session(database=database, session_type=SessionType.DATA) as session:
         if db_controller.data_exists(session):
-            io_controller.out_warning('Data already exists in database:', database)
+            io_controller.out_warn('Data already exists in database:', database)
 
             if io_controller.in_input('Continue with data loading? (Y/N)').lower() != 'y':
                 io_controller.out_info('Data loading aborted.')
@@ -77,9 +71,9 @@ def load_data(client):
 
 
 def rebuild_database(client):
-    result = create_database(client)
+    created = create_database(client)
 
-    if not result:
+    if not created:
         return False
 
     define_schema(client)

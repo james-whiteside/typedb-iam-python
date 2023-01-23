@@ -1,5 +1,5 @@
 import src.io_controller as io_controller
-import src.db_controller as db_controller
+import src.typedb_iam.db_controller as db_controller
 import src.data_generation as data_generation
 
 

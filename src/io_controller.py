@@ -14,7 +14,7 @@ def get_output_level(level_type):
         return 0
     elif log_arg in ('1', 'error'):
         return 1
-    elif log_arg in ('2', 'warning'):
+    elif log_arg in ('2', 'warn'):
         return 2
     elif log_arg in ('3', 'info'):
         return 3
@@ -76,8 +76,8 @@ def out_info(*args, **kwargs):
     out_raw('INFO:', *args, log_level=3, **kwargs)
 
 
-def out_warning(*args, **kwargs):
-    out_raw('WARNING:', *args, log_level=2, **kwargs)
+def out_warn(*args, **kwargs):
+    out_raw('WARN:', *args, log_level=2, **kwargs)
 
 
 def out_error(*args, **kwargs):
@@ -108,8 +108,8 @@ def get_out_function(level):
         return out_fatal
     elif level in ('1', 'error'):
         return out_error
-    elif level in ('2', 'warning'):
-        return out_warning
+    elif level in ('2', 'warn'):
+        return out_warn
     elif level in ('3', 'info'):
         return out_info
     elif level in ('4', 'debug'):
