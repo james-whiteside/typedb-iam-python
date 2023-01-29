@@ -15,6 +15,10 @@ def load_users(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(users), 'users:')
+    print("Opening file to write users ...")
+    with open("logs/user-queries.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -46,6 +50,10 @@ def load_user_groups(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(user_groups), 'user groups:')
+    print("Opening file to write user_groups ...")
+    with open("logs/user-groups-queries.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -67,6 +75,10 @@ def load_user_groups(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', group_membership_count, 'group memberships:')
+    print("Opening file to write user group membership ...")
+    with open("logs/group-membership-queries.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -88,6 +100,10 @@ def load_user_groups(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', group_ownership_count, 'group ownerships:')
+    print("Opening file to write user group ownership ...")
+    with open("logs/group-ownership-queries.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -110,6 +126,10 @@ def load_resources(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(resources), 'resources:')
+    print("Opening file to write resources ...")
+    with open("logs/resources.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -131,6 +151,10 @@ def load_resources(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', resource_ownership_count, 'resource ownerships:')
+    print("Opening file to write resource ownership ...")
+    with open("logs/resource-ownership.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -152,6 +176,10 @@ def load_resource_collections(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(resource_collections), 'resource collections:')
+    print("Opening file to write resource collections ...")
+    with open("logs/collections.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -173,6 +201,10 @@ def load_resource_collections(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', collection_membership_count, 'collection memberships:')
+    print("Opening file to write collections membership ...")
+    with open("logs/collection-membership.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -194,6 +226,10 @@ def load_resource_collections(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', collection_ownership_count, 'collection ownerships:')
+    print("Opening file to write collection ownership ...")
+    with open("logs/collection-ownership.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -214,6 +250,10 @@ def load_operations(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(operations), 'operations:')
+    print("Opening file to write operations ...")
+    with open("logs/operations.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -238,6 +278,10 @@ def load_operations(session):
                 queries.append(query)
 
     io_controller.out_info('Loading up to', len(operations) * len(objects), 'potential accesses:')
+    print("Opening file to write potential accesses ...")
+    with open("logs/potential-accesses.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -257,6 +301,10 @@ def load_operation_sets(session):
         queries.append(query)
 
     io_controller.out_info('Loading', len(operation_sets), 'operation sets:')
+    print("Opening file to write operation sets ...")
+    with open("logs/operation-sets.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -278,6 +326,10 @@ def load_operation_sets(session):
                 queries.append(query)
 
     io_controller.out_info('Loading', set_membership_count, 'set memberships:')
+    print("Opening file to write set membership ...")
+    with open("logs/set-membership.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -302,6 +354,10 @@ def load_operation_sets(session):
                 queries.append(query)
 
     io_controller.out_info('Loading up to', len(operation_sets) * len(objects), 'potential accesses:')
+    print("Opening file to write potential accesses for sets ...")
+    with open("logs/potential-accesses-for-sets.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -345,6 +401,10 @@ def load_permissions(session):
                                 queries.append(query)
 
     io_controller.out_info('Loading', len(permissions), 'permissions:')
+    print("Opening file to write permissions ...")
+    with open("logs/permissions.txt", "a") as file:
+        for query in queries:
+            file.write(query + "\n")
     db_controller.insert(session, queries, display_progress=True)
 
 
