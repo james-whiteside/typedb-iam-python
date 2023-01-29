@@ -479,7 +479,11 @@ def assign_group_owner(user_group, item_list, rng=Random()):
         if member in users:
             candidate_owner_uuids.append(member['uuid'])
 
-    user_group['owner'] = [rng.choice(candidate_owner_uuids)]
+    if candidate_owner_uuids.__len__() > 0:  # This is a quickfix for a crash with 0 members in the group documentation
+                                             # if `user_count` is too low
+        user_group['owner'] = [rng.choice(candidate_owner_uuids)]
+    else:
+        user_group['owner'] = [rng.choice(users)['uuid']]
 
 
 def assign_group_owners(item_list, rng=Random()):
