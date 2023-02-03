@@ -497,6 +497,7 @@ def assign_group_owners(item_list, rng=Random()):
 
 
 def assign_object_owner(obj, item_list, rng=Random()):
+    users = list(item for item in item_list if 'user' in item['type'])
     permissions = list(item for item in item_list if 'permission' in item['type'])
     membership_uuids = get_nested_membership_uuids(obj['uuid'], item_list) + [obj['uuid']]
     subject_uuids = list()
@@ -511,7 +512,10 @@ def assign_object_owner(obj, item_list, rng=Random()):
     for uuid in subject_uuids:
         candidate_owner_uuids += get_nested_member_uuids(uuid, item_list)
 
-    obj['owner'] = [rng.choice(candidate_owner_uuids)]
+    if len(candidate_owner_uuids) > 0:  # Fix to match group owner assignment.
+        obj['owner'] = [rng.choice(candidate_owner_uuids)]
+    else:
+        obj['owner'] = [rng.choice(users)['uuid']]
 
 
 def assign_object_owners(item_list, rng=Random()):
