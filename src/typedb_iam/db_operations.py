@@ -132,3 +132,26 @@ def run_test_queries(client):
 
                 for item in result:
                     io_controller.out_info(item)
+
+
+def run_prove_query_test(client):
+    # This function was implemented as a client-side test for a new type of prove() query.
+    # It is not intended for general use and is likely to break if config settings are changed.
+
+    database = db_utilities.get_database_name()
+    options = TypeDBOptions.core().set_infer(True).set_explain(True)
+
+    with client.session(database=database, session_type=SessionType.DATA, options=options) as session:
+        query = db_utilities.get_saved_query('prove_query', 'prove_query_test')
+        queries = [query]
+        result = db_controller.prove(session, queries)[0]
+
+        for match in result:
+            print('-' * 50)
+            for proof in match:
+                print('proof:')
+                for line in proof:
+                    print(line)
+                print()
+
+    return True

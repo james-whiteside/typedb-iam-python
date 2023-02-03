@@ -1,0 +1,8 @@
+match
+    $p isa person, has name $p-name;
+    $o isa object, has name $o-name;
+    $a isa action, has name $a-name;
+    $ac(accessed-object: $o, valid-action: $a) isa access;
+    $pe(permitted-subject: $p, permitted-access: $ac) isa permission;
+    $p-name = "Kevin Morrison";
+limit 10;

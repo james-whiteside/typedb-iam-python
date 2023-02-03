@@ -1,6 +1,9 @@
 import math
+import itertools
+import copy
 from typedb.client import TypeDB, TransactionType
 from typedb.common.exception import TypeDBClientException
+from typedb.logic.rule import _Rule
 import src.polynomial as polynomial
 import src.io_controller as io_controller
 from src.io_controller import ProgressBar
@@ -90,6 +93,164 @@ def match(session, queries, display_progress=False):
             with session.transaction(transaction_type=TransactionType.READ) as transaction:
                 result = transaction.query().match(query=query)
                 results.append(unpack_result(result))
+
+            progress_bar.increment()
+
+    return results
+
+
+def get_proofs(transaction, concept_map):
+    explainables = dict()
+    explainables.update(concept_map.explainables().relations())
+    explainables.update(concept_map.explainables().attributes())
+    explainables.update(concept_map.explainables().ownerships())
+
+    for explainable in copy.copy(explainables):
+        if not concept_map.get(explainable).is_inferred():
+            del explainables[explainable]
+
+    base_facts = set(concept for concept in concept_map.concepts() if not concept.is_inferred())
+
+    if len(explainables) == 0:
+        return [base_facts]
+
+    proofs_of_explainables = list()
+
+    for explainable in explainables.values():  # AND (cartesian product)
+        explanations = transaction.query().explain(explainable)
+        proofs_of_explainable = list()
+
+        for explanation in explanations:  # OR (union)
+            rule = explanation.rule()
+            condition = explanation.condition()
+            proofs_of_condition = get_proofs(transaction, condition)
+
+            for proof_of_condition in proofs_of_condition:
+                proof_of_explainable = proof_of_condition | {rule}
+                proofs_of_explainable.append(proof_of_explainable)
+
+        proofs_of_explainables.append(proofs_of_explainable)
+
+    proofs_of_concept_map = list()
+
+    for proof_set in itertools.product(*proofs_of_explainables):
+        proof_of_concept_map = set.union(*proof_set) | base_facts
+        proofs_of_concept_map.append(proof_of_concept_map)
+
+    proofs_of_concept_map = set(frozenset(proof) for proof in proofs_of_concept_map)
+
+    for reference_proof in copy.copy(proofs_of_concept_map):
+        for test_proof in copy.copy(proofs_of_concept_map):
+            if reference_proof < test_proof:
+                try:
+                    proofs_of_concept_map.remove(test_proof)
+                except ValueError:
+                    pass
+
+    proofs_of_concept_map = list(set(proof) for proof in proofs_of_concept_map)
+
+    return proofs_of_concept_map
+
+
+def decode_proofs(transaction, proofs):
+    outputs = list()
+
+    for proof in proofs:
+        output = list()
+        type_counts = dict()
+        bindings = dict()
+
+        for item in proof:
+            if type(item) is _Rule:
+                continue
+            else:
+                item_type = str(item.get_type().get_label())
+
+                if item_type not in type_counts:
+                    type_counts[item_type] = 1
+                else:
+                    type_counts[item_type] += 1
+
+                if item.is_attribute():
+                    attribute_value = item.get_value()
+
+                    if type(attribute_value) is str:
+                        attribute_value = '"' + str(attribute_value) + '"'
+                    else:
+                        attribute_value = str(attribute_value)
+
+                    binding = attribute_value
+                else:
+                    binding = '$' + item_type + '-' + str(type_counts[item_type])
+
+                bindings[item] = binding
+
+        for item in proof:
+            if type(item) is _Rule:
+                output.append('rule: ' + str(item.get_label()))
+            elif item.is_entity():
+                attributes = list(item.as_remote(transaction).get_has())
+                entity_binding = bindings[item]
+                entity_type = str(item.get_type().get_label())
+                entity_attributes = str()
+
+                for attribute in attributes:
+                    try:
+                        entity_attributes += ', has ' + str(attribute.get_type().get_label()) + ' ' + bindings[attribute]
+                    except KeyError:
+                        continue
+
+                output.append(entity_binding + ' ' + 'isa' + ' ' + entity_type + entity_attributes + ';')
+
+            elif item.is_relation():
+                roles = item.as_remote(transaction).get_players_by_role_type()
+                attributes = list(item.as_remote(transaction).get_has())
+                relation_binding = bindings[item]
+                relation_type = str(item.get_type().get_label())
+                relation_roleplayers = list()
+                relation_attributes = str()
+
+                for role in roles:
+                    for roleplayer in roles[role]:
+                        try:
+                            relation_roleplayer = str(role.get_label()).split(':')[1] + ': ' + bindings[roleplayer]
+                            relation_roleplayers.append(relation_roleplayer)
+                        except KeyError:
+                            continue
+
+                for attribute in attributes:
+                    try:
+                        relation_attributes += ', has attribute ' + bindings[attribute]
+                    except KeyError:
+                        continue
+
+                output.append(relation_binding + ' (' + ', '.join(relation_roleplayers) + ') isa ' + relation_type + ';')
+
+            elif item.is_attribute():
+                continue
+            else:
+                io_controller.out_error('Thing is not an entity, relation, or attribute.')
+
+        output.sort()
+        outputs.append(output)
+
+    return outputs
+
+
+def prove(session, queries, display_progress=False):
+    results = list()
+
+    with ProgressBar(len(queries), display=display_progress) as progress_bar:
+        for query in queries:
+            with session.transaction(transaction_type=TransactionType.READ) as transaction:
+                result = transaction.query().match(query=query)
+                result_proofs = list()
+
+                for concept_map in result:
+                    proofs = get_proofs(transaction, concept_map)
+                    result_proofs.append(decode_proofs(transaction, proofs))
+
+                results.append(result_proofs)
 
             progress_bar.increment()
 

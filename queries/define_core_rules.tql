@@ -4,6 +4,9 @@ rule transitive-group-membership:
     when {
         (user-group: $g1, group-member: $g2) isa group-membership;
         (user-group: $g2, group-member: $s) isa group-membership;
+        $g1 has name $g1-name;
+        $g2 has name $g2-name;
+        $s has name $s-name;
     } then {
         (user-group: $g1, group-member: $s) isa group-membership;
     };
@@ -12,6 +15,9 @@ rule transitive-collection-membership:
     when {
         (resource-collection: $c1, collection-member: $c2) isa collection-membership;
         (resource-collection: $c2, collection-member: $o) isa collection-membership;
+        $c1 has name $c1-name;
+        $c2 has name $c2-name;
+        $o has name $o-name;
     } then {
         (resource-collection: $c1, collection-member: $o) isa collection-membership;
     };
@@ -20,6 +26,9 @@ rule transitive-set-membership:
     when {
         (operation-set: $s1, set-member: $s2) isa set-membership;
         (operation-set: $s2, set-member: $a) isa set-membership;
+        $s1 has name $s1-name;
+        $s2 has name $s2-name;
+        $a has name $a-name;
     } then {
         (operation-set: $s1, set-member: $a) isa set-membership;
     };
@@ -31,6 +40,9 @@ rule transitive-object-access:
         $c2 isa! $c2-type;
         $c1-type is $c2-type;
         (accessed-object: $c1, valid-action: $a) isa access;
+        $c1 has name $c1-name;
+        $c2 has name $c2-name;
+        $a has name $a-name;
     } then {
         (accessed-object: $c2, valid-action: $a) isa access;
     };
@@ -39,6 +51,9 @@ rule transitive-action-access:
     when {
         (operation-set: $s, set-member: $a) isa set-membership;
         (accessed-object: $o, valid-action: $s) isa access;
+        $s has name $s-name;
+        $a has name $a-name;
+        $o has name $o-name;
     } then {
         (accessed-object: $o, valid-action: $a) isa access;
     };
@@ -47,6 +62,8 @@ rule transitive-subject-permission:
     when {
         (user-group: $g, group-member: $s) isa group-membership;
         (permitted-subject: $g, permitted-access: $a) isa permission;
+        $g has name $g-name;
+        $s has name $s-name;
     } then {
         (permitted-subject: $s, permitted-access: $a) isa permission;
     };
@@ -57,6 +74,9 @@ rule transitive-object-permission:
         $ac-c(accessed-object: $c, valid-action: $a) isa access;
         $ac-o(accessed-object: $o, valid-action: $a) isa access;
         (permitted-subject: $s, permitted-access: $ac-c) isa permission;
+        $c has name $c-name;
+        $o has name $o-name;
+        $s has name $s-name;
     } then {
         (permitted-subject: $s, permitted-access: $ac-o) isa permission;
     };
@@ -67,6 +87,10 @@ rule transitive-action-permission:
         $ac-s(accessed-object: $o, valid-action: $s) isa access;
         $ac-a(accessed-object: $o, valid-action: $a) isa access;
         (permitted-subject: $su, permitted-access: $ac-s) isa permission;
+        $s has name $s-name;
+        $a has name $a-name;
+        $o has name $o-name;
+        $su has name $su-name;
     } then {
         (permitted-subject: $su, permitted-access: $ac-a) isa permission;
     };
