@@ -1,0 +1,128 @@
+define
+
+subject sub entity,
+    abstract,
+    owns name,
+    owns credentials,
+    plays group-membership:group-member,
+    plays group-ownership:group-owner,
+    plays object-ownership:object-owner,
+    plays permission:permitted-subject,
+    plays change-request:requesting-subject,
+    plays change-request:requested-subject,
+    plays segregation-violation:violating-subject;
+
+user sub subject;
+
+user-group sub subject,
+    plays group-membership:user-group,
+    plays group-ownership:owned-group;
+
+object sub entity,
+    abstract,
+    owns name,
+    owns object-type,
+    plays collection-membership:collection-member,
+    plays object-ownership:owned-object,
+    plays access:accessed-object,
+    plays segregation-violation:violating-object;
+
+resource sub object;
+
+resource-collection sub object,
+    plays collection-membership:resource-collection;
+
+action sub entity,
+    abstract,
+    owns name,
+    owns object-type,
+    plays set-membership:set-member,
+    plays access:valid-action,
+    plays segregation-policy:segregated-action;
+
+operation sub action;
+
+operation-set sub action,
+    plays set-membership:operation-set;
+
+group-membership sub relation,
+    relates user-group,
+    relates group-member;
+
+collection-membership sub relation,
+    relates resource-collection,
+    relates collection-member;
+
+set-membership sub relation,
+    relates operation-set,
+    relates set-member;
+
+group-ownership sub relation,
+    relates owned-group,
+    relates group-owner,
+    owns ownership-type;
+
+object-ownership sub relation,
+    relates owned-object,
+    relates object-owner,
+    owns ownership-type;
+
+access sub relation,
+    relates accessed-object,
+    relates valid-action,
+    plays permission:permitted-access,
+    plays change-request:requested-change;
+
+permission sub relation,
+    relates permitted-subject,
+    relates permitted-access,
+    owns review-date,
+    owns permission-validity;
+
+change-request sub relation,
+    relates requesting-subject,
+    relates requested-subject,
+    relates requested-change;
+
+segregation-policy sub relation,
+    relates segregated-action,
+    plays segregation-violation:violated-policy;
+
+segregation-violation sub relation,
+    relates violating-subject,
+    relates violating-object,
+    relates violated-policy;
+
+name sub attribute,
+    value string;
+
+credentials sub attribute,
+    value string;
+
+object-type sub attribute,
+    value string;
+
+ownership-type sub attribute,
+    value string;
+
+review-date sub attribute,
+    value datetime;
+
+permission-validity sub attribute,
+    value boolean;
+
+person sub user,
+    owns email;
+
+business-unit sub user-group;
+
+user-role sub user-group;
+
+user-account sub user-group;
+
+file sub resource;
+
+directory sub resource-collection;
+
+email sub attribute,
+    value string;
