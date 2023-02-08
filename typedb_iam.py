@@ -6,8 +6,8 @@ import src.typedb_iam.db_operations as db_operations
 io_controller.create_log()
 
 with db_controller.client() as client:
-    # data_operations.generate_new_dataset()
+    data_operations.generate_new_dataset()
     db_operations.ensure_server_connection(client)
-    # db_operations.rebuild_database(client)
+    db_operations.rebuild_database(client)
     # db_operations.provide_graph_statistics(client)
     db_operations.run_test_queries(client)

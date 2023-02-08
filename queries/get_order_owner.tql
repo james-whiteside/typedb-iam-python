@@ -1,6 +1,13 @@
 match
-    $f isa file, has name $f-name;
-    $s isa subject, has name $s-name;
+    $f isa file, has filepath $f-filepath;
+    {
+        $s isa user, has name $s-name;
+    } or {
+        $s isa user-group, has name $s-name;
+    } or {
+        $s isa user-group, has email $s-name;
+    };
+    $s has $s-name;
     $oo(owned-object: $f, object-owner: $s) isa object-ownership;
-    $f-name = "order_2021-09-01.xlsx";
+    $f-filepath = "order_2021-09-23.xlsx";
 get $s-name;

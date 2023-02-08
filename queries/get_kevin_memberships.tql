@@ -1,6 +1,10 @@
 match
     $p isa person, has name $p-name;
-    $g isa user-group, has name $g-name;
+    {
+        $g isa user-group, has name $g-name;
+    } or {
+        $g isa user-group, has email $g-name;
+    };
     $gm(user-group: $g, group-member: $p) isa group-membership;
     $p-name = "Kevin Morrison";
-get $g-name;
+get $g-attribute;

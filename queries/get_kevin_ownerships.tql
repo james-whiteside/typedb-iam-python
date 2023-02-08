@@ -1,6 +1,6 @@
 match
     $p isa person, has name $p-name;
-    $o isa object, has name $o-name;
+    $o isa object, has filepath $o-filepath;
     $oo(owned-object: $o, object-owner: $p) isa object-ownership;
     $p-name = "Kevin Morrison";
-get $o-name;
+get $o-filepath;

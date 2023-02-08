@@ -70,3 +70,35 @@ rule transitive-action-permission:
     } then {
         (permitted-subject: $su, permitted-access: $ac-a) isa permission;
     };
+
+rule automatic-segregation-violation:
+    when {
+        $s(segregated-action: $a1, segregated-action:$a2) isa segregation-policy;
+        $ac1(accessed-object: $o, valid-action: $a1) isa access;
+        $ac2(accessed-object: $o, valid-action: $a2) isa access;
+        $p1(permitted-subject: $su, permitted-access: $ac1) isa permission;
+        $p2(permitted-subject: $su, permitted-access: $ac2) isa permission;
+    } then {
+        (violating-subject: $su, violating-object: $o, violated-policy: $s) isa segregation-violation;
+    };
+
+rule automatic-permission-invalidity:
+    when {
+        $s(segregated-action: $a1, segregated-action:$a2) isa segregation-policy;
+        $ac1(accessed-object: $o, valid-action: $a1) isa access;
+        $ac2(accessed-object: $o, valid-action: $a2) isa access;
+        $p1(permitted-subject: $su, permitted-access: $ac1) isa permission;
+        $p2(permitted-subject: $su, permitted-access: $ac2) isa permission;
+    } then {
+        $p1 has validity false;
+    };
+
+rule automatic-permission-validity:
+    when {
+        $p isa permission;
+        not {
+            $p has validity false;
+        };
+    } then {
+        $p has validity true;
+    };

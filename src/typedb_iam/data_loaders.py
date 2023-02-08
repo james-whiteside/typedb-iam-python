@@ -35,14 +35,18 @@ def load_user_groups(session):
 
         if 'business_unit' in group_types:
             group_type = 'business-unit'
+            identifier_type = 'name'
         elif 'user_role' in group_types:
             group_type = 'user-role'
+            identifier_type = 'name'
         elif 'user_account' in group_types:
             group_type = 'user-account'
+            identifier_type = 'email'
         else:
-            group_type = 'user-group'
+            io_controller.out_fatal('Invalid group types:', group_types)
+            io_controller.kill()
 
-        query = 'insert $g isa ' + group_type + ', has name "' + name + '";'
+        query = 'insert $g isa ' + group_type + ', has ' + identifier_type + ' "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(user_groups), 'user groups:')
@@ -52,14 +56,24 @@ def load_user_groups(session):
     for group in user_groups:
         group_name = group['name']
 
+        if 'user_account' in group['type']:
+            group_identifier = 'email'
+        else:
+            group_identifier = 'name'
+
         for subject in subjects:
             if subject['uuid'] in group['member']:
                 member_name = subject['name']
 
+                if 'user_account' in subject['type']:
+                    subject_identifier = 'email'
+                else:
+                    subject_identifier = 'name'
+
                 query = ' '.join([
                     'match',
-                    '$g isa user-group, has name "' + group_name + '";',
-                    '$s isa subject, has name "' + member_name + '";',
+                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',
+                    '$s isa subject, has ' + subject_identifier + ' "' + member_name + '";',
                     'insert',
                     '$m (user-group: $g, group-member: $s) isa group-membership;'
                 ])
@@ -73,14 +87,25 @@ def load_user_groups(session):
     for group in user_groups:
         group_name = group['name']
 
+        if 'user_account' in group['type']:
+            group_identifier = 'email'
+        else:
+            group_identifier = 'name'
+
+
         for subject in subjects:
             if subject['uuid'] in group['owner']:
                 owner_name = subject['name']
 
+                if 'user_account' in subject['type']:
+                    owner_identifier = 'email'
+                else:
+                    owner_identifier = 'name'
+
                 query = ' '.join([
                     'match',
-                    '$g isa user-group, has name "' + group_name + '";',
-                    '$s isa subject, has name "' + owner_name + '";',
+                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
                     'insert',
                     '$o (owned-group: $g, group-owner: $s) isa group-ownership;'
                 ])
@@ -106,7 +131,7 @@ def load_resources(session):
     for resource in resources:
         name = resource['name']
         resource_ownership_count += len(resource['owner'])
-        query = 'insert $f isa file, has name "' + name + '";'
+        query = 'insert $f isa file, has filepath "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(resources), 'resources:')
@@ -120,10 +145,15 @@ def load_resources(session):
             if subject['uuid'] in resource['owner']:
                 owner_name = subject['name']
 
+                if 'user_account' in subject['type']:
+                    owner_identifier = 'email'
+                else:
+                    owner_identifier = 'name'
+
                 query = ' '.join([
                     'match',
-                    '$r isa resource, has name "' + resource_name + '";',
-                    '$s isa subject, has name "' + owner_name + '";',
+                    '$r isa resource, has filepath "' + resource_name + '";',
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
                     'insert',
                     '$o (owned-object: $r, object-owner: $s) isa object-ownership;'
                 ])
@@ -148,7 +178,7 @@ def load_resource_collections(session):
         name = collection['name']
         collection_membership_count += len(collection['member'])
         collection_ownership_count += len(collection['owner'])
-        query = 'insert $d isa directory, has name "' + name + '";'
+        query = 'insert $d isa directory, has filepath "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(resource_collections), 'resource collections:')
@@ -164,8 +194,8 @@ def load_resource_collections(session):
 
                 query = ' '.join([
                     'match',
-                    '$c isa resource-collection, has name "' + collection_name + '";',
-                    '$o isa object, has name "' + member_name + '";',
+                    '$c isa resource-collection, has filepath "' + collection_name + '";',
+                    '$o isa object, has filepath "' + member_name + '";',
                     'insert',
                     '$m (resource-collection: $c, collection-member: $o) isa collection-membership;'
                 ])
@@ -183,10 +213,15 @@ def load_resource_collections(session):
             if subject['uuid'] in collection['owner']:
                 owner_name = subject['name']
 
+                if 'user_account' in subject['type']:
+                    owner_identifier = 'email'
+                else:
+                    owner_identifier = 'name'
+
                 query = ' '.join([
                     'match',
-                    '$c isa resource-collection, has name "' + collection_name + '";',
-                    '$s isa subject, has name "' + owner_name + '";',
+                    '$c isa resource-collection, has filepath "' + collection_name + '";',
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
                     'insert',
                     '$o (owned-object: $c, object-owner: $s) isa object-ownership;'
                 ])
@@ -229,7 +264,7 @@ def load_operations(session):
 
                 query = ' '.join([
                     'match',
-                    '$ob isa ' + object_type.replace('_', '-') + ', has name "' + object_name + '";',
+                    '$ob isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
                     '$op isa operation, has name "' + operation_name + '";',
                     'insert',
                     '$a (accessed-object: $ob, valid-action: $op) isa access;'
@@ -293,7 +328,7 @@ def load_operation_sets(session):
 
                 query = ' '.join([
                     'match',
-                    '$o isa ' + object_type.replace('_', '-') + ', has name "' + object_name + '";',
+                    '$o isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
                     '$s isa operation-set, has name "' + set_name + '";',
                     'insert',
                     '$a (accessed-object: $o, valid-action: $s) isa access;'
@@ -332,10 +367,15 @@ def load_permissions(session):
                                 object_name = obj['name']
                                 action_name = action['name']
 
+                                if 'user_account' in subject['type']:
+                                    identifier_type = 'email'
+                                else:
+                                    identifier_type = 'name'
+
                                 query = ' '.join([
                                     'match',
-                                    '$s isa ' + subject_type.replace('_', '-') + ', has name "' + subject_name + '";',
-                                    '$o isa ' + object_type.replace('_', '-') + ', has name "' + object_name + '";',
+                                    '$s isa ' + subject_type.replace('_', '-') + ', has ' + identifier_type + ' "' + subject_name + '";',
+                                    '$o isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
                                     '$a isa action, has name "' + action_name + '";',
                                     '$ac (accessed-object: $o, valid-action: $a) isa access;',
                                     'insert',

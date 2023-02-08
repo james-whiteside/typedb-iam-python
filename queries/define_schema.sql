@@ -1,111 +1,171 @@
+CREATE TABLE subject (
+    id SERIAL PRIMARY KEY
+);
+
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(256),
-    last_name VARCHAR(256),
-    email_address VARCHAR(256)
+    id INT PRIMARY KEY REFERENCES subject(id)
 );
 
 CREATE TABLE user_group (
+    id INT PRIMARY KEY REFERENCES subject(id)
+);
+
+CREATE TABLE object (
+    id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE object_type (
+    object INT REFERENCES object(id),
+    object_type VARCHAR(256),
+    PRIMARY KEY(object, object_type)
+);
+
+CREATE TABLE resource (
+    id INT PRIMARY KEY REFERENCES object(id)
+);
+
+CREATE TABLE resource_collection (
+    id INT PRIMARY KEY REFERENCES object(id)
+);
+
+CREATE TABLE actions (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(256)
+);
+
+CREATE TABLE action_type (
+    action_id INT REFERENCES actions(id),
+    object_type VARCHAR(256),
+    PRIMARY KEY (action_id, object_type)
+);
+
+CREATE TABLE operation (
+    id INT PRIMARY KEY REFERENCES actions(id)
+);
+
+CREATE TABLE operation_set (
+    id INT PRIMARY KEY REFERENCES actions(id)
+);
+
+CREATE TABLE group_membership (
+    user_group INT REFERENCES user_group(id),
+    group_member INT REFERENCES subject(id),
+    PRIMARY KEY(user_group, group_member)
+);
+
+CREATE TABLE collection_membership (
+    resource_collection INT REFERENCES resource_collection(id),
+    collection_member INT REFERENCES object(id),
+    PRIMARY KEY(resource_collection, collection_member)
+);
+
+CREATE TABLE set_membership (
+    operation_set INT REFERENCES operation_set(id),
+    set_member INT REFERENCES actions(id),
+    PRIMARY KEY(operation_set, set_member)
+);
+
+CREATE TABLE group_ownership (
+    owned_group INT REFERENCES user_group(id),
+    group_owner INT REFERENCES subject(id),
+    ownership_type VARCHAR(256)
+    PRIMARY KEY(owned_group, ownership_type)
+);
+
+CREATE TABLE object_ownership (
+    owned_object INT REFERENCES object(id),
+    object_owner INT REFERENCES subject(id),
+    ownership_type VARCHAR(256),
+    PRIMARY KEY(owned_object, ownership_type)
+);
+
+CREATE TABLE access (
+    id SERIAL NOT NULL UNIQUE,
+    accessed_object INT REFERENCES object(id),
+    valid_action INT REFERENCES actions(id),
+    PRIMARY KEY(accessed_object, valid_action)
+);
+
+CREATE TABLE permission (
+    permitted_subject INT REFERENCES subject(id),
+    permitted_access INT REFERENCES access(id),
+    review_date DATE,
+    validity BOOLEAN,
+    PRIMARY KEY(permitted_subject, permitted_access)
+);
+
+CREATE TABLE change_request (
+    requesting_subject INT REFERENCES subject(id),
+    requested_subject INT REFERENCES subject(id),
+    requested_change INT REFERENCES access(id)
+);
+
+CREATE TABLE segregation_policy (
+    id SERIAL NOT NULL UNIQUE,
+    segregated_action_1 INT REFERENCES actions(id),
+    segregated_action_2 INT REFERENCES actions(id),
+    PRIMARY KEY(segregated_action_1, segregated_action_2)
+);
+
+CREATE TABLE segregation_violation (
+    violating_subject INT REFERENCES subject(id),
+    violating_object INT REFERENCES object(id),
+    violated_policy INT REFERENCES segregation_policy(id),
+    PRIMARY KEY (violating_subject, violating_object, violated_policy)
+);
+
+CREATE TABLE person (
+    id INT PRIMARY KEY REFERENCES users(id),
     name VARCHAR(256),
-    owner_id INT REFERENCES users(id)
-);
-
-CREATE TABLE user_group_hierarchy (
-    parent_user_group INT REFERENCES user_group(id),
-    child_user_group INT REFERENCES user_group(id)
-);
-
-CREATE TABLE user_group_membership (
-    group_id INT REFERENCES user_group(id),
-    user_id INT REFERENCES users(id)
+    email VARCHAR(256)
 );
 
 CREATE TABLE business_unit (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(256),
-    business_owner INT REFERENCES users(id)
+    id INT PRIMARY KEY REFERENCES user_group(id),
+    name VARCHAR(256)
 );
-
-CREATE TABLE business_unit_hierarchy (
-    parent_business_unit INT REFERENCES business_unit(id),
-    child_business_unit INT REFERENCES business_unit(id)
-);
-
-ALTER TABLE users
-ADD COLUMN business_unit_id INT REFERENCES business_unit(id);
 
 CREATE TABLE user_role (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(256),
-    owner_id INT REFERENCES users(id)
-);
-
-CREATE TABLE user_role_hierarchy (
-    parent_user_role INT REFERENCES user_role(id),
-    child_user_role INT REFERENCES user_role(id)
-);
-
-CREATE TABLE user_role_membership (
-    user_role_id INT REFERENCES user_role(id),
-    user_id INT REFERENCES users(id)
+    id INT PRIMARY KEY REFERENCES user_group(id),
+    name VARCHAR(256)
 );
 
 CREATE TABLE user_account (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY REFERENCES user_group(id),
+    email VARCHAR(256)
+);
+
+CREATE TABLE file (
+    id INT PRIMARY KEY REFERENCES resource(id),
+    filepath VARCHAR(256)
+);
+
+CREATE TABLE interface (
+    id INT PRIMARY KEY REFERENCES resource(id),
     name VARCHAR(256)
 );
 
-CREATE TABLE user_account_mapping (
-    user_account_id INT REFERENCES user_account(id),
-    user_id INT REFERENCES users(id)
+CREATE TABLE records (
+    id INT PRIMARY KEY REFERENCES resource(id),
+    number INT
 );
 
 CREATE TABLE directory (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(256),
-    business_unit_id INT REFERENCES business_unit(id),
-    business_owner INT REFERENCES users(id)
+    id INT PRIMARY KEY REFERENCES resource_collection(id),
+    filepath VARCHAR(256)
 );
 
-CREATE TABLE directory_hierarchy (
-    parent_directory INT REFERENCES directory(id),
-    child_directory INT REFERENCES directory(id)
-);
-
-CREATE TABLE directory_resource (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(256),
-    directory_id INT REFERENCES directory(id),
-    owner_id INT REFERENCES users(id)
-);
-
-CREATE TABLE entitlement (
-    id SERIAL PRIMARY KEY,
+CREATE TABLE application (
+    id INT PRIMARY KEY REFERENCES resource_collection(id),
     name VARCHAR(256)
 );
 
-CREATE TABLE entitlement_hierarchy (
-    parent_entitlement INT REFERENCES entitlement(id),
-    child_entitlement INT REFERENCES entitlement(id)
+CREATE TABLE databases (
+    id INT PRIMARY KEY REFERENCES resource_collection(id),
+    name VARCHAR(256)
 );
 
-CREATE TABLE directory_entitlement (
-    entitlement_id INT REFERENCES entitlement(id),
-    resource_id INT REFERENCES directory_resource(id)
-);
-
-CREATE TABLE user_direct_entitlement (
-    user_id INT REFERENCES users(id),
-    entitlement_id INT REFERENCES entitlement(id)
-);
-
-CREATE TABLE user_role_entitlement (
-    user_role_id INT REFERENCES user_role(id),
-    entitlement_id INT REFERENCES entitlement(id)
-);
-
-CREATE TABLE user_account_entitlement (
-    user_account_id INT REFERENCES user_account(id),
-    entitlement_id INT REFERENCES entitlement(id)
+CREATE TABLE tables (
+    id INT PRIMARY KEY REFERENCES resource_collection(id),
+    name VARCHAR(256)
 );

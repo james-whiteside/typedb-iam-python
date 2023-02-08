@@ -2,8 +2,7 @@ define
 
 subject sub entity,
     abstract,
-    owns name,
-    owns credentials,
+    owns credential,
     plays group-membership:group-member,
     plays group-ownership:group-owner,
     plays object-ownership:object-owner,
@@ -12,24 +11,27 @@ subject sub entity,
     plays change-request:requested-subject,
     plays segregation-violation:violating-subject;
 
-user sub subject;
+user sub subject,
+    abstract;
 
 user-group sub subject,
+    abstract,
     plays group-membership:user-group,
     plays group-ownership:owned-group;
 
 object sub entity,
     abstract,
-    owns name,
     owns object-type,
     plays collection-membership:collection-member,
     plays object-ownership:owned-object,
     plays access:accessed-object,
     plays segregation-violation:violating-object;
 
-resource sub object;
+resource sub object,
+    abstract;
 
 resource-collection sub object,
+    abstract,
     plays collection-membership:resource-collection;
 
 action sub entity,
@@ -77,7 +79,7 @@ permission sub relation,
     relates permitted-subject,
     relates permitted-access,
     owns review-date,
-    owns permission-validity;
+    owns validity;
 
 change-request sub relation,
     relates requesting-subject,
@@ -93,13 +95,13 @@ segregation-violation sub relation,
     relates violating-object,
     relates violated-policy;
 
-name sub attribute,
-    value string;
-
-credentials sub attribute,
+credential sub attribute,
     value string;
 
 object-type sub attribute,
+    value string;
+
+name sub attribute,
     value string;
 
 ownership-type sub attribute,
@@ -108,21 +110,48 @@ ownership-type sub attribute,
 review-date sub attribute,
     value datetime;
 
-permission-validity sub attribute,
+validity sub attribute,
     value boolean;
 
 person sub user,
+    owns name,
     owns email;
 
-business-unit sub user-group;
+business-unit sub user-group,
+    owns name;
 
-user-role sub user-group;
+user-role sub user-group,
+    owns name;
 
-user-account sub user-group;
+user-account sub user-group,
+    owns email;
 
-file sub resource;
+file sub resource,
+    owns filepath;
 
-directory sub resource-collection;
+interface sub resource,
+    owns name;
+
+record sub resource,
+    owns number;
+
+directory sub resource-collection,
+    owns filepath;
+
+application sub resource-collection,
+    owns name;
+
+database sub resource-collection,
+    owns name;
+
+table sub resource-collection,
+    owns name;
 
 email sub attribute,
     value string;
+
+filepath sub attribute,
+    value string;
+
+number sub attribute,
+    value long;
