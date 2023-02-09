@@ -106,6 +106,7 @@ def get_proofs(transaction, concept_map):
     explainables.update(concept_map.explainables().ownerships())
 
     for explainable in copy.copy(explainables):
+        # This check is necessary due to a bug: https://github.com/vaticle/typedb/issues/6741
         if not concept_map.get(explainable).is_inferred():
             del explainables[explainable]
 
