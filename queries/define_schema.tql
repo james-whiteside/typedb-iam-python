@@ -16,7 +16,7 @@ user sub subject,
 
 user-group sub subject,
     abstract,
-    plays group-membership:user-group,
+    plays group-membership:parent-group,
     plays group-ownership:owned-group;
 
 object sub entity,
@@ -32,7 +32,7 @@ resource sub object,
 
 resource-collection sub object,
     abstract,
-    plays collection-membership:resource-collection;
+    plays collection-membership:parent-collection;
 
 action sub entity,
     abstract,
@@ -45,7 +45,7 @@ action sub entity,
 operation sub action;
 
 operation-set sub action,
-    plays set-membership:operation-set;
+    plays set-membership:parent-set;
 
 membership sub relation,
     abstract,
@@ -53,15 +53,15 @@ membership sub relation,
     relates member;
 
 group-membership sub membership,
-    relates user-group as parent,
+    relates parent-group as parent,
     relates group-member as member;
 
 collection-membership sub membership,
-    relates resource-collection as parent,
+    relates parent-collection as parent,
     relates collection-member as member;
 
 set-membership sub membership,
-    relates operation-set as parent,
+    relates parent-set as parent,
     relates set-member as member;
 
 ownership sub relation,
@@ -181,31 +181,31 @@ full-name sub attribute,
 
 rule transitive-group-membership:
     when {
-        (user-group: $g1, group-member: $g2) isa group-membership;
-        (user-group: $g2, group-member: $s) isa group-membership;
+        (parent-group: $g1, group-member: $g2) isa group-membership;
+        (parent-group: $g2, group-member: $s) isa group-membership;
     } then {
-        (user-group: $g1, group-member: $s) isa group-membership;
+        (parent-group: $g1, group-member: $s) isa group-membership;
     };
 
 rule transitive-collection-membership:
     when {
-        (resource-collection: $c1, collection-member: $c2) isa collection-membership;
-        (resource-collection: $c2, collection-member: $o) isa collection-membership;
+        (parent-collection: $c1, collection-member: $c2) isa collection-membership;
+        (parent-collection: $c2, collection-member: $o) isa collection-membership;
     } then {
-        (resource-collection: $c1, collection-member: $o) isa collection-membership;
+        (parent-collection: $c1, collection-member: $o) isa collection-membership;
     };
 
 rule transitive-set-membership:
     when {
-        (operation-set: $s1, set-member: $s2) isa set-membership;
-        (operation-set: $s2, set-member: $a) isa set-membership;
+        (parent-set: $s1, set-member: $s2) isa set-membership;
+        (parent-set: $s2, set-member: $a) isa set-membership;
     } then {
-        (operation-set: $s1, set-member: $a) isa set-membership;
+        (parent-set: $s1, set-member: $a) isa set-membership;
     };
 
 rule transitive-object-access:
     when {
-        (resource-collection: $c1, collection-member: $c2) isa collection-membership;
+        (parent-collection: $c1, collection-member: $c2) isa collection-membership;
         $c1 isa! $c1-type;
         $c2 isa! $c2-type;
         $c1-type is $c2-type;
@@ -216,7 +216,7 @@ rule transitive-object-access:
 
 rule transitive-action-access:
     when {
-        (operation-set: $s, set-member: $a) isa set-membership;
+        (parent-set: $s, set-member: $a) isa set-membership;
         (accessed-object: $o, valid-action: $s) isa access;
     } then {
         (accessed-object: $o, valid-action: $a) isa access;
@@ -224,7 +224,7 @@ rule transitive-action-access:
 
 rule transitive-subject-permission:
     when {
-        (user-group: $g, group-member: $s) isa group-membership;
+        (parent-group: $g, group-member: $s) isa group-membership;
         (permitted-subject: $g, permitted-access: $a) isa permission;
     } then {
         (permitted-subject: $s, permitted-access: $a) isa permission;
@@ -232,7 +232,7 @@ rule transitive-subject-permission:
 
 rule transitive-object-permission:
     when {
-        (resource-collection: $c, collection-member: $o) isa collection-membership;
+        (parent-collection: $c, collection-member: $o) isa collection-membership;
         $ac-c(accessed-object: $c, valid-action: $a) isa access;
         $ac-o(accessed-object: $o, valid-action: $a) isa access;
         (permitted-subject: $s, permitted-access: $ac-c) isa permission;
@@ -242,7 +242,7 @@ rule transitive-object-permission:
 
 rule transitive-action-permission:
     when {
-        (operation-set: $s, set-member: $a) isa set-membership;
+        (parent-set: $s, set-member: $a) isa set-membership;
         $ac-s(accessed-object: $o, valid-action: $s) isa access;
         $ac-a(accessed-object: $o, valid-action: $a) isa access;
         (permitted-subject: $su, permitted-access: $ac-s) isa permission;
