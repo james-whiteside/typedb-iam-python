@@ -36,7 +36,7 @@ resource-collection sub object,
 
 action sub entity,
     abstract,
-    owns name,
+    owns action-name,
     owns object-type,
     plays set-membership:set-member,
     plays access:valid-action,
@@ -97,7 +97,7 @@ change-request sub relation,
 
 segregation-policy sub relation,
     relates segregated-action,
-    owns name,
+    owns policy-name,
     plays segregation-violation:violated-policy;
 
 segregation-violation sub relation,
@@ -111,7 +111,7 @@ credential sub attribute,
 object-type sub attribute,
     value string;
 
-name sub attribute,
+action-name sub attribute,
     value string;
 
 ownership-type sub attribute,
@@ -123,8 +123,11 @@ review-date sub attribute,
 validity sub attribute,
     value boolean;
 
+policy-name sub attribute,
+    value string;
+
 person sub user,
-    owns name,
+    owns full-name,
     owns email;
 
 business-unit sub user-group,
@@ -137,7 +140,7 @@ user-account sub user-group,
     owns email;
 
 file sub resource,
-    owns filepath;
+    owns path;
 
 interface sub resource,
     owns name;
@@ -146,7 +149,7 @@ record sub resource,
     owns number;
 
 directory sub resource-collection,
-    owns filepath;
+    owns path;
 
 application sub resource-collection,
     owns name;
@@ -157,14 +160,24 @@ database sub resource-collection,
 table sub resource-collection,
     owns name;
 
-email sub attribute,
+id sub attribute,
+    abstract,
     value string;
 
-filepath sub attribute,
+email sub id,
     value string;
 
-number sub attribute,
-    value long;
+name sub id,
+    value string;
+
+path sub id,
+    value string;
+
+number sub id,
+    value string;
+
+full-name sub attribute,
+    value string;
 
 rule transitive-group-membership:
     when {
