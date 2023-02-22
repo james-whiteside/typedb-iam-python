@@ -181,11 +181,12 @@ full-name sub attribute,
 
 rule transitive-membership:
     when {
-        (parent: $e1, member: $e2) isa! $m;
-        (parent: $e2, member: $e3) isa! $m;
-        $m sub membership;
+        ($parent-role: $e1, $member-role: $e2) isa! $membership-type;
+        ($parent-role: $e2, $member-role: $e3) isa! $membership-type;
+        $membership-type sub membership;
+        $membership-type relates $parent-role, relates $member-role;
     } then {
-        (parent: $e1, member: $e3) isa $m;
+        ($parent-role: $e1, $member-role: $e3) isa $membership-type;
     };
 
 rule transitive-object-access:
@@ -237,7 +238,7 @@ rule transitive-action-permission:
 
 rule automatic-segregation-violation:
     when {
-        $s(segregated-action: $a1, segregated-action:$a2) isa segregation-policy;
+        $s(segregated-action: $a1, segregated-action: $a2) isa segregation-policy;
         $ac1(accessed-object: $o, valid-action: $a1) isa access;
         $ac2(accessed-object: $o, valid-action: $a2) isa access;
         $p1(permitted-subject: $su, permitted-access: $ac1) isa permission;
@@ -248,7 +249,7 @@ rule automatic-segregation-violation:
 
 rule automatic-permission-invalidity:
     when {
-        $s(segregated-action: $a1, segregated-action:$a2) isa segregation-policy;
+        $s(segregated-action: $a1, segregated-action: $a2) isa segregation-policy;
         $ac1(accessed-object: $o, valid-action: $a1) isa access;
         $ac2(accessed-object: $o, valid-action: $a2) isa access;
         $p1(permitted-subject: $su, permitted-access: $ac1) isa permission;
