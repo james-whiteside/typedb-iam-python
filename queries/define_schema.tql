@@ -179,28 +179,13 @@ number sub id,
 full-name sub attribute,
     value string;
 
-rule transitive-group-membership:
+rule transitive-membership:
     when {
-        (parent-group: $g1, group-member: $g2) isa group-membership;
-        (parent-group: $g2, group-member: $s) isa group-membership;
+        (parent: $e1, member: $e2) isa! $m;
+        (parent: $e2, member: $e3) isa! $m;
+        $m sub membership;
     } then {
-        (parent-group: $g1, group-member: $s) isa group-membership;
-    };
-
-rule transitive-collection-membership:
-    when {
-        (parent-collection: $c1, collection-member: $c2) isa collection-membership;
-        (parent-collection: $c2, collection-member: $o) isa collection-membership;
-    } then {
-        (parent-collection: $c1, collection-member: $o) isa collection-membership;
-    };
-
-rule transitive-set-membership:
-    when {
-        (parent-set: $s1, set-member: $s2) isa set-membership;
-        (parent-set: $s2, set-member: $a) isa set-membership;
-    } then {
-        (parent-set: $s1, set-member: $a) isa set-membership;
+        (parent: $e1, member: $e3) isa $m;
     };
 
 rule transitive-object-access:
