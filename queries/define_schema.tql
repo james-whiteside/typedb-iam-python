@@ -1,8 +1,75 @@
+#
+# Copyright (C) 2022 Vaticle
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
 define
+
+company sub entity,
+    owns name,
+    plays company-membership:parent-company;
+
+company-membership sub relation,
+    relates parent-company,
+    relates company-member;
+
+parent-company sub attribute,
+    value string;
+
+rule attribute-parent-company:
+    when {
+        (parent-company: $c, company-member: $t) isa company-membership;
+        $c has name $c-name;
+    } then {
+        $t has parent-company $c-name;
+    };
+
+rule transitive-parent-company:
+    when {
+        $r($t) isa relation;
+        $t has parent-company $c-name;
+    } then {
+        $r has parent-company $c-name;
+    };
+
+root-collection sub attribute,
+    value boolean;
+
+rule automatic-member-collection:
+    when {
+        $c isa resource-collection;
+        (collection-member: $c) isa collection-membership;
+    } then {
+        $c has root-collection false;
+    };
+
+rule automatic-root-collection:
+    when {
+        $c isa resource-collection;
+        not {
+            $c has root-collection false;
+        };
+    } then {
+        $c has root-collection true;
+    };
 
 subject sub entity,
     abstract,
+    owns parent-company,
     owns credential,
+    plays company-membership:company-member,
     plays group-membership:group-member,
     plays group-ownership:group-owner,
     plays object-ownership:object-owner,
@@ -21,7 +88,9 @@ user-group sub subject,
 
 object sub entity,
     abstract,
+    owns parent-company,
     owns object-type,
+    plays company-membership:company-member,
     plays collection-membership:collection-member,
     plays object-ownership:owned-object,
     plays access:accessed-object,
@@ -32,12 +101,15 @@ resource sub object,
 
 resource-collection sub object,
     abstract,
+    owns root-collection,
     plays collection-membership:parent-collection;
 
 action sub entity,
     abstract,
+    owns parent-company,
     owns action-name,
     owns object-type,
+    plays company-membership:company-member,
     plays set-membership:set-member,
     plays access:valid-action,
     plays segregation-policy:segregated-action;
