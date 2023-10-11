@@ -1,14 +1,14 @@
 match
-    $f isa file, has filepath $f-filepath;
+    $f isa file, has path $f-filepath;
     {
-        $s isa user, has name $s-name;
+        $s isa user, has full-name $s-name;
     } or {
         $s isa user-group, has name $s-name;
     } or {
         $s isa user-group, has email $s-name;
     };
     $s has $s-name;
-    $a isa action, has name $a-name;
+    $a isa action, has action-name $a-name;
     $ac(accessed-object: $f, valid-action: $a) isa access;
     $pe(permitted-subject: $s, permitted-access: $ac) isa permission;
     $f-filepath = "order_2021-09-23.xlsx";

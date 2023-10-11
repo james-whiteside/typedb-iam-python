@@ -11,7 +11,7 @@ def load_users(session):
     for user in users:
         name = user['name']
         email = user['email']
-        query = 'insert $p isa person, has name "' + name + '", has email "' + email + '";'
+        query = 'insert $p isa person, has full-name "' + name + '", has email "' + email + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(users), 'users:')
@@ -46,7 +46,7 @@ def load_user_groups(session):
             io_controller.out_fatal('Invalid group types:', group_types)
             io_controller.kill()
 
-        query = 'insert $g isa ' + group_type + ', has ' + identifier_type + ' "' + name + '";'
+        query = 'insert $g isa ' + group_type + ', has ' + identifier_type + ' "' + name + '";'  # noqa: E501
         queries.append(query)
 
     io_controller.out_info('Loading', len(user_groups), 'user groups:')
@@ -72,14 +72,14 @@ def load_user_groups(session):
 
                 query = ' '.join([
                     'match',
-                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',
-                    '$s isa subject, has ' + subject_identifier + ' "' + member_name + '";',
+                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',  # noqa: E501
+                    '$s isa subject, has ' + subject_identifier + ' "' + member_name + '";',  # noqa: E501
                     'insert',
                     '$m (user-group: $g, group-member: $s) isa group-membership;'
                 ])
 
                 queries.append(query)
-
+                io_controller.out_info(query)
     io_controller.out_info('Loading', group_membership_count, 'group memberships:')
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
@@ -104,12 +104,12 @@ def load_user_groups(session):
 
                 query = ' '.join([
                     'match',
-                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',
-                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
+                    '$g isa user-group, has ' + group_identifier + ' "' + group_name + '";',  # noqa: E501
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',  # noqa: E501
                     'insert',
                     '$o (owned-group: $g, group-owner: $s) isa group-ownership;'
                 ])
-
+                print(query)
                 queries.append(query)
 
     io_controller.out_info('Loading', group_ownership_count, 'group ownerships:')
@@ -131,7 +131,7 @@ def load_resources(session):
     for resource in resources:
         name = resource['name']
         resource_ownership_count += len(resource['owner'])
-        query = 'insert $f isa file, has filepath "' + name + '";'
+        query = 'insert $f isa file, has path "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(resources), 'resources:')
@@ -152,8 +152,8 @@ def load_resources(session):
 
                 query = ' '.join([
                     'match',
-                    '$r isa resource, has filepath "' + resource_name + '";',
-                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
+                    '$r isa resource, has path "' + resource_name + '";',
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',  # noqa: E501
                     'insert',
                     '$o (owned-object: $r, object-owner: $s) isa object-ownership;'
                 ])
@@ -178,10 +178,10 @@ def load_resource_collections(session):
         name = collection['name']
         collection_membership_count += len(collection['member'])
         collection_ownership_count += len(collection['owner'])
-        query = 'insert $d isa directory, has filepath "' + name + '";'
+        query = 'insert $d isa directory, has path "' + name + '";'
         queries.append(query)
 
-    io_controller.out_info('Loading', len(resource_collections), 'resource collections:')
+    io_controller.out_info('Loading', len(resource_collections), 'resource collections:')  # noqa: E501
     db_controller.insert(session, queries, display_progress=True)
     queries = list()
 
@@ -194,8 +194,8 @@ def load_resource_collections(session):
 
                 query = ' '.join([
                     'match',
-                    '$c isa resource-collection, has filepath "' + collection_name + '";',
-                    '$o isa object, has filepath "' + member_name + '";',
+                    '$c isa resource-collection, has path "' + collection_name + '";',
+                    '$o isa object, has path "' + member_name + '";',
                     'insert',
                     '$m (resource-collection: $c, collection-member: $o) isa collection-membership;'
                 ])
@@ -220,15 +220,15 @@ def load_resource_collections(session):
 
                 query = ' '.join([
                     'match',
-                    '$c isa resource-collection, has filepath "' + collection_name + '";',
-                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',
+                    '$c isa resource-collection, has path "' + collection_name + '";',
+                    '$s isa subject, has ' + owner_identifier + ' "' + owner_name + '";',  # noqa: E501
                     'insert',
                     '$o (owned-object: $c, object-owner: $s) isa object-ownership;'
                 ])
 
                 queries.append(query)
 
-    io_controller.out_info('Loading', collection_ownership_count, 'collection ownerships:')
+    io_controller.out_info('Loading', collection_ownership_count, 'collection ownerships:')  # noqa: E501
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -245,7 +245,7 @@ def load_operations(session):
 
     for operation in operations:
         name = operation['name']
-        query = 'insert $o isa operation, has name "' + name + '";'
+        query = 'insert $o isa operation, has operation-name "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(operations), 'operations:')
@@ -256,7 +256,7 @@ def load_operations(session):
         operation_name = operation['name']
 
         for obj in objects:
-            object_types = list(object_type for object_type in obj['type'] if object_type in operation['object_type'])
+            object_types = list(object_type for object_type in obj['type'] if object_type in operation['object_type'])  # noqa: E501
 
             if len(object_types) != 0:
                 object_name = obj['name']
@@ -264,15 +264,15 @@ def load_operations(session):
 
                 query = ' '.join([
                     'match',
-                    '$ob isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
-                    '$op isa operation, has name "' + operation_name + '";',
+                    '$ob isa ' + object_type.replace('_', '-') + ', has path "' + object_name + '";',
+                    '$op isa operation, has operation-name "' + operation_name + '";',
                     'insert',
                     '$a (accessed-object: $ob, valid-action: $op) isa access;'
                 ])
 
                 queries.append(query)
 
-    io_controller.out_info('Loading up to', len(operations) * len(objects), 'potential accesses:')
+    io_controller.out_info('Loading up to', len(operations) * len(objects), 'potential accesses:')  # noqa: E501
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -288,7 +288,7 @@ def load_operation_sets(session):
     for opset in operation_sets:
         name = opset['name']
         set_membership_count += len(opset['member'])
-        query = 'insert $s isa operation-set, has name "' + name + '";'
+        query = 'insert $s isa operation-set, has operation-set-name "' + name + '";'
         queries.append(query)
 
     io_controller.out_info('Loading', len(operation_sets), 'operation sets:')
@@ -304,9 +304,9 @@ def load_operation_sets(session):
 
                 query = ' '.join([
                     'match',
-                    '$s isa operation-set, has name "' + set_name + '";',
-                    '$a isa action, has name "' + member_name + '";',
-                    'insert'
+                    '$s isa operation-set, has operation-set-name "' + set_name + '";',
+                    '$a isa action, has action-name "' + member_name + '";',
+                    'insert',
                     '$m (operation-set: $s, set-member: $a) isa set-membership;'
                 ])
 
@@ -320,7 +320,7 @@ def load_operation_sets(session):
         set_name = opset['name']
 
         for obj in objects:
-            object_types = list(object_type for object_type in obj['type'] if object_type in opset['object_type'])
+            object_types = list(object_type for object_type in obj['type'] if object_type in opset['object_type'])  # noqa: E501
 
             if len(object_types) != 0:
                 object_name = obj['name']
@@ -328,15 +328,15 @@ def load_operation_sets(session):
 
                 query = ' '.join([
                     'match',
-                    '$o isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
-                    '$s isa operation-set, has name "' + set_name + '";',
+                    '$o isa ' + object_type.replace('_', '-') + ', has path "' + object_name + '";',  # noqa: E501
+                    '$s isa operation-set, has operation-set-name "' + set_name + '";',
                     'insert',
                     '$a (accessed-object: $o, valid-action: $s) isa access;'
                 ])
 
                 queries.append(query)
 
-    io_controller.out_info('Loading up to', len(operation_sets) * len(objects), 'potential accesses:')
+    io_controller.out_info('Loading up to', len(operation_sets) * len(objects), 'potential accesses:')  # noqa: E501
     db_controller.insert(session, queries, display_progress=True)
 
 
@@ -374,12 +374,12 @@ def load_permissions(session):
 
                                 query = ' '.join([
                                     'match',
-                                    '$s isa ' + subject_type.replace('_', '-') + ', has ' + identifier_type + ' "' + subject_name + '";',
-                                    '$o isa ' + object_type.replace('_', '-') + ', has filepath "' + object_name + '";',
-                                    '$a isa action, has name "' + action_name + '";',
-                                    '$ac (accessed-object: $o, valid-action: $a) isa access;',
+                                    '$s isa ' + subject_type.replace('_', '-') + ', has ' + identifier_type + ' "' + subject_name + '";',  # noqa: E501
+                                    '$o isa ' + object_type.replace('_', '-') + ', has path "' + object_name + '";',  # noqa: E501
+                                    '$a isa action, has action-name "' + action_name + '";',  # noqa: E501
+                                    '$ac (accessed-object: $o, valid-action: $a) isa access;',  # noqa: E501
                                     'insert',
-                                    '$p (permitted-subject: $s, permitted-access: $ac) isa permission;'
+                                    '$p (permitted-subject: $s, permitted-access: $ac) isa permission;'  # noqa: E501
                                 ])
 
                                 queries.append(query)

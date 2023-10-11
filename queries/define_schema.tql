@@ -28,22 +28,6 @@ company-membership sub relation,
 parent-company sub attribute,
     value string;
 
-rule attribute-parent-company:
-    when {
-        (parent-company: $c, company-member: $t) isa company-membership;
-        $c has name $c-name;
-    } then {
-        $t has parent-company $c-name;
-    };
-
-rule transitive-parent-company:
-    when {
-        $r($t) isa relation;
-        $t has parent-company $c-name;
-    } then {
-        $r has parent-company $c-name;
-    };
-
 root-collection sub attribute,
     value boolean;
 
@@ -71,6 +55,7 @@ subject sub entity,
     owns credential,
     plays company-membership:company-member,
     plays group-membership:group-member,
+    plays group-membership:user-group,
     plays group-ownership:group-owner,
     plays object-ownership:object-owner,
     plays permission:permitted-subject,
@@ -102,6 +87,7 @@ resource sub object,
 resource-collection sub object,
     abstract,
     owns root-collection,
+    plays collection-membership:resource-collection,
     plays collection-membership:parent-collection;
 
 action sub entity,
@@ -114,22 +100,28 @@ action sub entity,
     plays access:valid-action,
     plays segregation-policy:segregated-action;
 
-operation sub action;
+operation sub action,
+    owns operation-name;
 
 operation-set sub action,
+    owns operation-set-name,
     plays set-membership:parent-set;
 
 membership sub relation,
     abstract,
     relates parent,
+    relates user,
+    relates resource,
     relates member;
 
 group-membership sub membership,
     relates parent-group as parent,
+    relates user-group as user,
     relates group-member as member;
 
 collection-membership sub membership,
     relates parent-collection as parent,
+    relates resource-collection as resource,
     relates collection-member as member;
 
 set-membership sub membership,
@@ -184,6 +176,12 @@ object-type sub attribute,
     value string;
 
 action-name sub attribute,
+    value string;
+
+operation-name sub attribute,
+    value string;
+
+operation-set-name sub attribute,
     value string;
 
 ownership-type sub attribute,

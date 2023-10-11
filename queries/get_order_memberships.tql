@@ -1,6 +1,6 @@
 match
-    $f isa file, has filepath $f-filepath;
-    $c isa resource-collection, has filepath $c-filepath;
+    $f isa file, has path $f-filepath;
+    $c isa resource-collection, has path $c-filepath;
     $cm(resource-collection: $c, collection-member: $f) isa collection-membership;
     $f-filepath = "order_2021-09-23.xlsx";
 get $c-filepath;

@@ -1,7 +1,7 @@
 match
-    $f isa file, has filepath $f-filepath;
+    $f isa file, has path $f-filepath;
     {
-        $s isa user, has name $s-name;
+        $s isa user, has full-name $s-name;
     } or {
         $s isa user-group, has name $s-name;
     } or {
